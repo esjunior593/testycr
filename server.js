@@ -63,7 +63,7 @@ app.post('/comprobantes', (req, res) => {
     const numero = text.match(/Comprobante: (\d+)/) ? text.match(/Comprobante: (\d+)/)[1] : "No encontrado";
     const nombres = text.match(/Nombre (.+)/) ? text.match(/Nombre (.+)/)[1].split("\n")[0] : "No encontrado";
     const fecha = text.match(/Fecha (\d{2} \w{3} \d{4})/) ? text.match(/Fecha (\d{2} \w{3} \d{4})/)[1] : "No encontrada";
-    const monto = text.match(/Monto \\$([\d,]+(?:\.\d{2})?)/) ? text.match(/Monto \\$([\d,]+(?:\.\d{2})?)/)[1] : "No encontrado";
+    const monto = text.match(/Monto[^\d]+([\d,.]+)/) ? text.match(/Monto[^\d]+([\d,.]+)/)[1] : "No encontrado";
 
     const descripcion = text.trim();
 
