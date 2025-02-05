@@ -53,19 +53,18 @@ app.get('/comprobantes/:id', (req, res) => {
 
 // Crear un comprobante
 app.post('/comprobantes', (req, res) => {
-    let { text } = req.body;
+    let { text, whatsapp } = req.body; // Recibir el número de WhatsApp
 
-    if (!text) {
-        return res.status(200).json({ message: "❌ No se recibió texto válido", resumen: null });
+    if (!text || !whatsapp) {
+        return res.status(200).json({ message: "❌ No se recibió información válida", resumen: null });
     }
 
     // Extraer datos del texto OCR
     const numero = text.match(/Comprobante: (\d+)/) ? text.match(/Comprobante: (\d+)/)[1] : "No encontrado";
-    const nombres = text.match(/Nombre (.+)/) ? text.match(/Nombre (.+)/)[1].split("\n")[0] : "No encontrado";
     const fecha = text.match(/Fecha (\d{2} \w{3} \d{4})/) ? text.match(/Fecha (\d{2} \w{3} \d{4})/)[1] : "No encontrada";
     const monto = text.match(/Monto[^\d]+([\d,.]+)/) ? text.match(/Monto[^\d]+([\d,.]+)/)[1] : "No encontrado";
 
-    console.log("📥 Datos extraídos:", { numero, nombres, fecha, monto });
+    console.log("📥 Datos extraídos:", { numero, fecha, monto, whatsapp });
 
     // Verificar si el comprobante ya existe en MySQL
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
@@ -79,26 +78,26 @@ app.post('/comprobantes', (req, res) => {
             
             // Extraer datos del comprobante existente
             const comprobanteExistente = results[0];
-            const resumen = `📌 **Número:** ${comprobanteExistente.numero}\n👤 **Enviado por:** ${comprobanteExistente.nombres}\n📅 **Fecha:** ${comprobanteExistente.fecha}\n💰 **Monto:** $${monto}`;
+            const resumen = `📌 **Número:** ${comprobanteExistente.numero}\n📞 **Enviado desde:** ${comprobanteExistente.whatsapp}\n📅 **Fecha:** ${comprobanteExistente.fecha}\n💰 **Monto:** $${monto}`;
 
             return res.status(200).json({ 
-                message: `🚫 Este comprobante ya ha sido presentado por ${comprobanteExistente.nombres}.`, 
+                message: `🚫 Este comprobante ya ha sido presentado por el número ${comprobanteExistente.whatsapp}.`, 
                 resumen: resumen 
             });
         }
 
-        // Insertar en MySQL si es nuevo
-        db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha) VALUES (?, ?, ?, ?)', 
-        [numero, nombres, "Pago recibido", fecha], (err) => {
+        // Insertar en MySQL con el número de WhatsApp
+        db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp) VALUES (?, ?, ?, ?, ?)', 
+        [numero, "Usuario", "Pago recibido", fecha, whatsapp], (err) => {
             if (err) {
                 console.error("❌ Error en la inserción:", err);
                 return res.status(200).json({ message: "❌ Error al guardar el comprobante", resumen: null });
             }
             console.log("✅ Comprobante guardado en la base de datos");
 
-            const resumen = `📌 **Número:** ${numero}\n👤 **Enviado por:** ${nombres}\n📅 **Fecha:** ${fecha}\n💰 **Monto:** $${monto}`;
+            const resumen = `📌 **Número:** ${numero}\n📞 **Enviado desde:** ${whatsapp}\n📅 **Fecha:** ${fecha}\n💰 **Monto:** $${monto}`;
 
-            res.status(200).json({ message: `✅ Comprobante registrado exitosamente a nombre de ${nombres}.`, resumen });
+            res.status(200).json({ message: `✅ Comprobante registrado exitosamente desde el número ${whatsapp}.`, resumen });
         });
     });
 });
