@@ -63,9 +63,11 @@ app.post('/comprobantes', (req, res) => {
     const numero = text.match(/Comprobante: (\d+)/) ? text.match(/Comprobante: (\d+)/)[1] : "No encontrado";
     const nombres = text.match(/Nombre (.+)/) ? text.match(/Nombre (.+)/)[1].split("\n")[0] : "No encontrado";
     const fecha = text.match(/Fecha (\d{2} \w{3} \d{4})/) ? text.match(/Fecha (\d{2} \w{3} \d{4})/)[1] : "No encontrada";
+    const monto = text.match(/Monto \\$([0-9,.]+)/) ? text.match(/Monto \\$([0-9,.]+)/)[1] : "No encontrado";
+
     const descripcion = text.trim();
 
-    console.log("📥 Datos extraídos:", { numero, nombres, fecha, descripcion });
+    console.log("📥 Datos extraídos:", { numero, nombres, fecha, monto, descripcion });
 
     // Verificar si el comprobante ya existe
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
@@ -76,7 +78,10 @@ app.post('/comprobantes', (req, res) => {
 
         if (results.length > 0) {
             console.log("🚫 Comprobante ya registrado:", numero);
-            return res.status(200).json({ message: `🚫 Este comprobante ya ha sido presentado por ${results[0].nombres}.` });
+            return res.status(200).json({ 
+                message: `🚫 Este comprobante ya ha sido presentado por ${results[0].nombres}.`, 
+                resumen: null 
+            });
         }
 
         // Insertar en MySQL
@@ -84,10 +89,13 @@ app.post('/comprobantes', (req, res) => {
         [numero, nombres, descripcion, fecha], (err) => {
             if (err) {
                 console.error("❌ Error en la inserción:", err);
-                return res.status(200).json({ message: "❌ Error al guardar el comprobante" });
+                return res.status(200).json({ message: "❌ Error al guardar el comprobante", resumen: null });
             }
             console.log("✅ Comprobante guardado en la base de datos");
-            res.status(200).json({ message: `✅ Comprobante registrado exitosamente a nombre de ${nombres}.` });
+
+            const resumen = `✅ Resumen del Comprobante:\n📌 **Número:** ${numero}\n👤 **Enviado por:** ${nombres}\n📅 **Fecha:** ${fecha}\n💰 **Monto:** $${monto}`;
+
+            res.status(200).json({ message: `✅ Comprobante registrado exitosamente a nombre de ${nombres}.`, resumen });
         });
     });
 });
