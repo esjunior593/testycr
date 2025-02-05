@@ -56,44 +56,47 @@ app.post('/comprobantes', (req, res) => {
     let { text } = req.body;
 
     if (!text) {
-        return res.status(200).json({ message: "❌ No se recibió texto válido" });
+        return res.status(200).json({ message: "❌ No se recibió texto válido", resumen: null });
     }
 
-    // Extraer datos del texto con expresiones regulares en Node.js
+    // Extraer datos del texto OCR
     const numero = text.match(/Comprobante: (\d+)/) ? text.match(/Comprobante: (\d+)/)[1] : "No encontrado";
     const nombres = text.match(/Nombre (.+)/) ? text.match(/Nombre (.+)/)[1].split("\n")[0] : "No encontrado";
     const fecha = text.match(/Fecha (\d{2} \w{3} \d{4})/) ? text.match(/Fecha (\d{2} \w{3} \d{4})/)[1] : "No encontrada";
     const monto = text.match(/Monto[^\d]+([\d,.]+)/) ? text.match(/Monto[^\d]+([\d,.]+)/)[1] : "No encontrado";
 
-    const descripcion = text.trim();
+    console.log("📥 Datos extraídos:", { numero, nombres, fecha, monto });
 
-    console.log("📥 Datos extraídos:", { numero, nombres, fecha, monto, descripcion });
-
-    // Verificar si el comprobante ya existe
+    // Verificar si el comprobante ya existe en MySQL
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
         if (err) {
             console.error("❌ Error en SELECT:", err);
-            return res.status(200).json({ message: "❌ Error interno del servidor" });
+            return res.status(200).json({ message: "❌ Error interno del servidor", resumen: null });
         }
 
         if (results.length > 0) {
             console.log("🚫 Comprobante ya registrado:", numero);
+            
+            // Extraer datos del comprobante existente
+            const comprobanteExistente = results[0];
+            const resumen = `📌 **Número:** ${comprobanteExistente.numero}\n👤 **Enviado por:** ${comprobanteExistente.nombres}\n📅 **Fecha:** ${comprobanteExistente.fecha}\n💰 **Monto:** $${monto}`;
+
             return res.status(200).json({ 
-                message: `🚫 Este comprobante ya ha sido presentado por ${results[0].nombres}.`, 
-                resumen: null 
+                message: `🚫 Este comprobante ya ha sido presentado por ${comprobanteExistente.nombres}.`, 
+                resumen: resumen 
             });
         }
 
-        // Insertar en MySQL
+        // Insertar en MySQL si es nuevo
         db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha) VALUES (?, ?, ?, ?)', 
-        [numero, nombres, descripcion, fecha], (err) => {
+        [numero, nombres, "Pago recibido", fecha], (err) => {
             if (err) {
                 console.error("❌ Error en la inserción:", err);
                 return res.status(200).json({ message: "❌ Error al guardar el comprobante", resumen: null });
             }
             console.log("✅ Comprobante guardado en la base de datos");
 
-            const resumen = `✅ Resumen del Comprobante:\n📌 **Número:** ${numero}\n👤 **Enviado por:** ${nombres}\n📅 **Fecha:** ${fecha}\n💰 **Monto:** $${monto}`;
+            const resumen = `📌 **Número:** ${numero}\n👤 **Enviado por:** ${nombres}\n📅 **Fecha:** ${fecha}\n💰 **Monto:** $${monto}`;
 
             res.status(200).json({ message: `✅ Comprobante registrado exitosamente a nombre de ${nombres}.`, resumen });
         });
