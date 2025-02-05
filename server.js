@@ -53,30 +53,42 @@ app.get('/comprobantes/:id', (req, res) => {
 
 // Crear un comprobante
 app.post('/comprobantes', (req, res) => {
-    let { text } = req.body; // Builder Bot solo envía "text", extraemos los datos aquí
+    let { text } = req.body;
 
     if (!text) {
-        return res.status(400).json({ error: "No se recibió texto válido" });
+        return res.status(200).json({ message: "❌ No se recibió texto válido" });
     }
 
     // Extraer datos del texto con expresiones regulares en Node.js
     const numero = text.match(/Comprobante: (\d+)/) ? text.match(/Comprobante: (\d+)/)[1] : "No encontrado";
     const nombres = text.match(/Nombre (.+)/) ? text.match(/Nombre (.+)/)[1].split("\n")[0] : "No encontrado";
     const fecha = text.match(/Fecha (\d{2} \w{3} \d{4})/) ? text.match(/Fecha (\d{2} \w{3} \d{4})/)[1] : "No encontrada";
-    const descripcion = text.trim(); // Guardamos el texto completo como respaldo
+    const descripcion = text.trim();
 
-    // Log para depuración
     console.log("📥 Datos extraídos:", { numero, nombres, fecha, descripcion });
 
-    // Insertar en MySQL
-    db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha) VALUES (?, ?, ?, ?)', 
-    [numero, nombres, descripcion, fecha], (err) => {
+    // Verificar si el comprobante ya existe
+    db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
         if (err) {
-            console.error("❌ Error en la inserción:", err);
-            return res.status(500).json({ error: err.message });
+            console.error("❌ Error en SELECT:", err);
+            return res.status(200).json({ message: "❌ Error interno del servidor" });
         }
-        console.log("✅ Comprobante guardado en la base de datos");
-        res.status(201).json({ message: 'Comprobante creado exitosamente' });
+
+        if (results.length > 0) {
+            console.log("🚫 Comprobante ya registrado:", numero);
+            return res.status(200).json({ message: `🚫 Este comprobante ya ha sido presentado por ${results[0].nombres}.` });
+        }
+
+        // Insertar en MySQL
+        db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha) VALUES (?, ?, ?, ?)', 
+        [numero, nombres, descripcion, fecha], (err) => {
+            if (err) {
+                console.error("❌ Error en la inserción:", err);
+                return res.status(200).json({ message: "❌ Error al guardar el comprobante" });
+            }
+            console.log("✅ Comprobante guardado en la base de datos");
+            res.status(200).json({ message: `✅ Comprobante registrado exitosamente a nombre de ${nombres}.` });
+        });
     });
 });
 
