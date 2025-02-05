@@ -54,17 +54,21 @@ app.get('/comprobantes/:id', (req, res) => {
 // Crear un comprobante
 app.post('/comprobantes', (req, res) => {
     const { numero, nombres, descripcion, fecha } = req.body;
-    
+
+    // LOG para depuración: Ver qué datos está recibiendo la API
+    console.log("📥 Datos recibidos desde Builder Bot:", req.body);
+
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
-        
+
         if (results.length > 0) {
             return res.status(400).json({ message: 'Este comprobante ya ha sido presentado, es incorrecto.' });
         }
-        
+
         db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha) VALUES (?, ?, ?, ?)', 
         [numero, nombres, descripcion, fecha], (err) => {
             if (err) return res.status(500).json({ error: err.message });
+            console.log("✅ Comprobante guardado en la base de datos");
             res.status(201).json({ message: 'Comprobante creado exitosamente' });
         });
     });
