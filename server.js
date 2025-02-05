@@ -53,24 +53,30 @@ app.get('/comprobantes/:id', (req, res) => {
 
 // Crear un comprobante
 app.post('/comprobantes', (req, res) => {
-    const { numero, nombres, descripcion, fecha } = req.body;
+    let { text } = req.body; // Builder Bot solo envía "text", extraemos los datos aquí
 
-    // LOG para depuración: Ver qué datos está recibiendo la API
-    console.log("📥 Datos recibidos desde Builder Bot:", req.body);
+    if (!text) {
+        return res.status(400).json({ error: "No se recibió texto válido" });
+    }
 
-    db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+    // Extraer datos del texto con expresiones regulares en Node.js
+    const numero = text.match(/Comprobante: (\d+)/) ? text.match(/Comprobante: (\d+)/)[1] : "No encontrado";
+    const nombres = text.match(/Nombre (.+)/) ? text.match(/Nombre (.+)/)[1].split("\n")[0] : "No encontrado";
+    const fecha = text.match(/Fecha (\d{2} \w{3} \d{4})/) ? text.match(/Fecha (\d{2} \w{3} \d{4})/)[1] : "No encontrada";
+    const descripcion = text.trim(); // Guardamos el texto completo como respaldo
 
-        if (results.length > 0) {
-            return res.status(400).json({ message: 'Este comprobante ya ha sido presentado, es incorrecto.' });
+    // Log para depuración
+    console.log("📥 Datos extraídos:", { numero, nombres, fecha, descripcion });
+
+    // Insertar en MySQL
+    db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha) VALUES (?, ?, ?, ?)', 
+    [numero, nombres, descripcion, fecha], (err) => {
+        if (err) {
+            console.error("❌ Error en la inserción:", err);
+            return res.status(500).json({ error: err.message });
         }
-
-        db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha) VALUES (?, ?, ?, ?)', 
-        [numero, nombres, descripcion, fecha], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            console.log("✅ Comprobante guardado en la base de datos");
-            res.status(201).json({ message: 'Comprobante creado exitosamente' });
-        });
+        console.log("✅ Comprobante guardado en la base de datos");
+        res.status(201).json({ message: 'Comprobante creado exitosamente' });
     });
 });
 
