@@ -51,10 +51,10 @@ function extraerDatosOCR(text) {
     if (text.includes("banco del austro")) {
         banco = "banco del austro";
         // Aplicar la fórmula específica para BANCO INTERNACIONAL
-        const comprobanteRegex = /NO\. COMPROBANTE:\s*(\d+)/i;
-        const nombresRegex = /Nombre\s*([A-Za-z\s]+)/i;
-        const montoRegex = /Monto\s*\$?(\d+[\.,]\d{2})/i;
-        const fechaRegex = /Fecha y Hora\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/i;
+        const comprobanteRegex = /NO\. COMPROBANTE:\s*(\d+)/i; // Extrae el número de comprobante
+        const nombresRegex = /Nombre\s*([A-Za-z\s]+)/i; // Extrae el nombre del beneficiario
+        const montoRegex = /Monto\s*\$?(\d+[\.,]\d{2})/i; // Extrae el monto
+        const fechaRegex = /Fecha y Hora\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/i; // Extrae la fecha y hora
 
         numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
         nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : " ";
