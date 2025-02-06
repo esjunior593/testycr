@@ -46,7 +46,22 @@ function extraerDatosOCR(text) {
         nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : " ";
         monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
         fecha = text.match(fechaRegex) ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
-    } else if (text.includes("OTRO BANCO")) {
+    } 
+    
+    if (text.includes("AUSTRO")) {
+        banco = "AUSTRO";
+        // Aplicar la fórmula específica para BANCO INTERNACIONAL
+        const comprobanteRegex = /NO\. COMPROBANTE\s*(\d+)/i;
+        const nombresRegex = /Nombre\s*([A-Za-z\s]+)/i;
+        const montoRegex = /Monto\s*\$?(\d+[\.,]\d{2})/i;
+        const fechaRegex = /Fecha y Hora\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/i;
+
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : " ";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
+        fecha = text.match(fechaRegex) ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
+    else if (text.includes("OTRO BANCO")) {
         banco = "OTRO BANCO";
         // Aplicar la fórmula específica para OTRO BANCO
         // Aquí puedes agregar las expresiones regulares y la lógica para otro banco
