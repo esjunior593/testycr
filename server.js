@@ -48,10 +48,10 @@ function extraerDatosOCR(text) {
         fecha = text.match(fechaRegex) ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     } 
     
-    if (text.includes("AUSTRO")) {
-        banco = "AUSTRO";
+    if (text.includes("banco del austro")) {
+        banco = "banco del austro";
         // Aplicar la fórmula específica para BANCO INTERNACIONAL
-        const comprobanteRegex = /NO\. COMPROBANTE\s*(\d+)/i;
+        const comprobanteRegex = /NO\. COMPROBANTE:\s*(\d+)/i;
         const nombresRegex = /Nombre\s*([A-Za-z\s]+)/i;
         const montoRegex = /Monto\s*\$?(\d+[\.,]\d{2})/i;
         const fechaRegex = /Fecha y Hora\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/i;
