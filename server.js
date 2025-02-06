@@ -113,16 +113,21 @@ function extraerDatosOCR(text) {
         banco = "BANCO DEL PACÍFICO - DEPÓSITO";
     
         const comprobanteRegex = /Transacci[oó]n\s*(\d+)/i; // Número de transacción
-        const montoRegex = /Valor:\s*([\d,\.]+)/i;
+        const montoRegex = /Valor:\s*([\d,]+(?:\.\d{1,2})?)/i; // Captura bien el monto con decimales
         const fechaRegex = /Fecha\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
     
-        // Extraer número de comprobante (transacción)
+        // 🔹 Extraer número de comprobante (transacción)
         numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
     
-        // Extraer monto (corrige el problema donde OCR pone `350` en lugar de `3.50`)
-        monto = text.match(montoRegex) ? parseFloat(text.match(montoRegex)[1]) / 100 : "-";
+        // 🔹 Extraer y corregir monto (si es `350`, lo convierte a `3.50`)
+        if (text.match(montoRegex)) {
+            let montoExtraido = text.match(montoRegex)[1].replace(",", ".");
+            monto = parseFloat(montoExtraido) > 100 ? (parseFloat(montoExtraido) / 100).toFixed(2) : montoExtraido;
+        } else {
+            monto = "-";
+        }
     
-        // Extraer y formatear fecha correctamente
+        // 🔹 Extraer y formatear fecha correctamente
         if (text.match(fechaRegex)) {
             const fechaMatch = text.match(fechaRegex);
             fecha = moment(`${fechaMatch[1]} ${fechaMatch[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
@@ -130,6 +135,7 @@ function extraerDatosOCR(text) {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
     }
+    
     
     
     // 🔹 DeUna
