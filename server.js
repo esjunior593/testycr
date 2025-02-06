@@ -88,6 +88,23 @@ function extraerDatosOCR(text) {
     
         console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
     }
+    // Banco de Loja
+    else if (/BANCO DE LOJA/i.test(text)) {
+        banco = "BANCO DE LOJA";
+    
+        const comprobanteRegex = /Nro\. comprobante:\s*(\d+)/i;
+        const montoRegex = /Monto transferido\s*\$?([\d,\.]+)/i;
+        const fechaRegex = /(\d{2}\/\d{2}\/\d{4})/i;
+    
+        // Extraer datos
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
+        
+        // Extraer y formatear fecha correctamente
+        fecha = text.match(fechaRegex) 
+            ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY").format("DD MMM. YYYY") 
+            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
     else if (/JUVENTUD ECUATORIANA PROGRESISTA/i.test(text) || /JEP/i.test(text)) {
         banco = "COOPERATIVA JEP";
     
@@ -104,25 +121,36 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-    // 🔹 DeUna
-    else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
-        banco = "d1";
-        
+    else if (text.includes("d1")) {
+        banco = "D1";
         const comprobanteRegex = /Nro\. de transacción\s*(\d+)/i;
         const nombresRegex = /Pagaste a\s*([A-Za-z\s]+)/i;
-        const montoRegex = /\$\s*(\d+[\.,]\d{2})/i;
-        const fechaRegex = /Fecha de pago\s*(\d{2} \w{3} \d{4} - \d{2}:\d{2} (?:am|pm))/i;
+        const montoRegex = /\$(\d+[\.,]\d{2})/i;
+        const fechaRegex = /Fecha de pago\s*(\d{2} [a-z]{3} \d{4} - \d{2}:\d{2} [ap]m)/i;
     
-        // Extraer datos
-        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
         nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
-    
-        // Extraer y formatear fecha correctamente
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
         fecha = text.match(fechaRegex) 
             ? moment(text.match(fechaRegex)[1], "DD MMM YYYY - hh:mm a").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
+    else if (/Banco Guayaquil/i.test(text) || /No\.\d+/i.test(text)) {
+        banco = "BANCO GUAYAQUIL";
+
+        const montoDebitadoRegex = /Valor debitado\s*\$\s*(\d+\.\d{2})/i;
+        const comisionRegex = /Comisión\s*\$\s*(\d+\.\d{2})/i;
+        const fechaRegex = /(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/;
+
+        let montoDebitado = text.match(montoDebitadoRegex) ? parseFloat(text.match(montoDebitadoRegex)[1]) : 0;
+        let comision = text.match(comisionRegex) ? parseFloat(text.match(comisionRegex)[1]) : 0;
+        monto = (montoDebitado - comision).toFixed(2);
+
+        fecha = text.match(fechaRegex) 
+            ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY").format("DD MMM. YYYY") 
+            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
+
     
     // 🔹 Banco del Pacífico (Depósito)
 else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
@@ -304,3 +332,7 @@ app.post('/comprobantes', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });
+
+
+
+
