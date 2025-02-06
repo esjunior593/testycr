@@ -31,7 +31,8 @@ db.connect(err => {
 
 
 function extraerDatosOCR(text) {
-    const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?|NO. COMPROBANTE|Documento|Control|Transacción|Secuencial Tbba)\s*[:#.-]?\s*([A-Z0-9]+)/i;
+    const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?|NO. COMPROBANTE|Documento|Control|Transacción|Secuencial Tbba)\s*[:#.-]?\s*([\w\d]+)/i;
+
 
 
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
