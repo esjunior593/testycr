@@ -156,8 +156,8 @@ app.post('/comprobantes', (req, res) => {
     // Si la imagen no es un comprobante, retorna el mensaje y evita la inserción
     if (datosExtraidos.mensaje) {
         return res.status(200).json({ 
-            message: "❌ La imagen no parece ser un comprobante de pago. Asegúrate de enviar una imagen válida.", 
-            resumen: "📌 Intente de nuevo con una imagen clara del comprobante."
+            message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.", 
+            resumen: "👉 *Soporte:* 0980757208 👈"
         });
     }
 
