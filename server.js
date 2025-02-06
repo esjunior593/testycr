@@ -33,41 +33,22 @@ db.connect(err => {
 function extraerDatosOCR(text) {
     let numero = "-", nombres = "-", monto = "-", fecha = "-", banco = "DESCONOCIDO";
 
-console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
+    console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
 
-// 🔍 Verificar si el OCR extrajo suficiente información
-if (!text || text.length < 50) {
-    console.log("❌ OCR fallido: el texto extraído es muy corto o ilegible.");
-    return { 
-        mensaje: "❌ No se pudo extraer la información del comprobante.",
-        resumen: "📌 Asegúrate de enviar una imagen clara y legible. Evita sombras o reflejos."
-    };
-}
+    
 
-// 🔍 Lista de palabras clave que indican que es un comprobante
-const palabrasClave = [
-    "Banco", "Transferencia", "No.", "Valor debitado", "Comisión", "Fecha",
-    "Monto", "Depósito", "Referencia", "ha enviado $", "Número de comprobante"
-];
+    // Lista de palabras clave que indican que es un comprobante
+    const palabrasClave = [
+        "Banco", "Transferencia", "No.", "Valor debitado", "Comisión", "Fecha",
+        "Monto", "Depósito", "Referencia", "ha enviado $", "Número de comprobante"
+    ];
 
-const contienePalabrasClave = palabrasClave.some(palabra => text.includes(palabra));
-
-// 🔹 Si el texto no tiene ninguna palabra clave, lo descartamos
-if (!contienePalabrasClave) {
-    console.log("❌ OCR detectó texto, pero no parece un comprobante.");
-    return { 
-        mensaje: "❌ La imagen no parece ser un comprobante de pago.",
-        resumen: "📌 Asegúrate de enviar una foto clara del comprobante sin cortes ni reflejos."
-    };
-}
-
-// 🔹 Buscar el número de comprobante
-const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
-let matchNumero = text.match(comprobanteRegex);
-if (matchNumero) {
-    numero = matchNumero[1].trim();
-}
-
+    // Buscar el número de comprobante
+    const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
+    let matchNumero = text.match(comprobanteRegex);
+    if (matchNumero) {
+        numero = matchNumero[1].trim();
+    }
 
     // 🔹 Banco del Pacífico (corrección del monto)
     if (/BANCO DEL PAC[IÍ]FICO/i.test(text) || /BdP/i.test(text)) {
