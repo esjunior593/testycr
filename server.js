@@ -33,6 +33,8 @@ db.connect(err => {
 function extraerDatosOCR(text) {
     let numero, nombres, monto, fecha, banco;
 
+    console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
+
     // Detectar el banco
     if (text.includes("BANCO INTERNACIONAL")) {
         banco = "BANCO INTERNACIONAL";
@@ -41,22 +43,26 @@ function extraerDatosOCR(text) {
         const montoRegex = /Monto\s*\$?(\d+[\.,]\d{2})/i;
         const fechaRegex = /Fecha y Hora\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/i;
 
-        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
-        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : " ";
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
-        fecha = text.match(fechaRegex) ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
+        fecha = text.match(fechaRegex) 
+            ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
+            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     } 
-    else if (/NO\.\s*COMPROBANTE:\s*(\d+)/i.test(text) || text.includes("AUSTRO")) {
+    else if (/NO\.\s*COMPROBANTE\s*[:\-]?\s*(\d+)/i.test(text) || text.includes("AUSTRO")) {
         banco = "BANCO DEL AUSTRO";
-        const comprobanteRegex = /NO\.\s*COMPROBANTE:\s*(\d+)/i;
+        const comprobanteRegex = /NO\.\s*COMPROBANTE\s*[:\-]?\s*(\d+)/i;
         const nombresRegex = /BENEFICIARIO:\s*([A-Z\s]+)/i;
         const montoRegex = /VALOR TRANSFERIDO:\s*\$\s*(\d+[\.,]\d{2})/i;
         const fechaRegex = /FECHA:\s*(\d{2}-\d{2}-\d{4})/i;
 
-        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
-        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : " ";
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
-        fecha = text.match(fechaRegex) ? text.match(fechaRegex)[1] : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
+        fecha = text.match(fechaRegex) 
+            ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
+            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
     else {
         banco = "DESCONOCIDO";
@@ -64,9 +70,9 @@ function extraerDatosOCR(text) {
         const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
         const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i;
 
-        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
-        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : " ";
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
         fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
 
@@ -74,6 +80,7 @@ function extraerDatosOCR(text) {
 
     return { numero, nombres, monto, fecha, banco };
 }
+
 
 
 
