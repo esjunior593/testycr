@@ -35,6 +35,7 @@ function extraerDatosOCR(text) {
 
 
 
+
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
     const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i;
 
