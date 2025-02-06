@@ -137,19 +137,40 @@ function extraerDatosOCR(text) {
     }
     else if (/Banco Guayaquil/i.test(text) || /No\.\d+/i.test(text)) {
         banco = "BANCO GUAYAQUIL";
-
+        console.log("✅ Detectado Banco Guayaquil");
+    
+        const comprobanteRegex = /No\.\s*(\d+)/i;
         const montoDebitadoRegex = /Valor debitado\s*\$\s*(\d+\.\d{2})/i;
         const comisionRegex = /Comisión\s*\$\s*(\d+\.\d{2})/i;
         const fechaRegex = /(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/;
-
-        let montoDebitado = text.match(montoDebitadoRegex) ? parseFloat(text.match(montoDebitadoRegex)[1]) : 0;
-        let comision = text.match(comisionRegex) ? parseFloat(text.match(comisionRegex)[1]) : 0;
+    
+        let matchNumero = text.match(comprobanteRegex);
+        if (matchNumero) {
+            numero = matchNumero[1].trim();
+            console.log("📌 Número de comprobante extraído:", numero);
+        } else {
+            console.log("🚨 No se encontró el número de comprobante");
+        }
+    
+        let matchMontoDebitado = text.match(montoDebitadoRegex);
+        let matchComision = text.match(comisionRegex);
+    
+        let montoDebitado = matchMontoDebitado ? parseFloat(matchMontoDebitado[1]) : 0;
+        let comision = matchComision ? parseFloat(matchComision[1]) : 0;
+    
         monto = (montoDebitado - comision).toFixed(2);
-
-        fecha = text.match(fechaRegex) 
-            ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY").format("DD MMM. YYYY") 
-            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        console.log(`📌 Monto calculado: ${monto} (Valor Debit: ${montoDebitado} - Comisión: ${comision})`);
+    
+        let matchFecha = text.match(fechaRegex);
+        if (matchFecha) {
+            fecha = moment(matchFecha[1], "DD/MM/YYYY").format("DD MMM. YYYY");
+            console.log("📌 Fecha extraída:", fecha);
+        } else {
+            fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+            console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
+        }
     }
+    
 
     
     // 🔹 Banco del Pacífico (Depósito)
