@@ -31,7 +31,7 @@ db.connect(err => {
 function extraerDatosOCR(text) {
     const comprobanteRegex = /(?:Comprobante\s*Nro\.?|Número de transacción|Código de transacción|Referencia|N°|No\.)[:\s]+(\d+)/i;
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
-    const montoRegex = /\$?\s?(\d+\.\d{2})/i; // Detecta $4.00 o 4.00
+    const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i; // Detecta $4.00, 4.00, $4,00 o 4,00
     const fechaRegex = /(?:Fecha[:\s]+)(\d{1,2} [a-zA-Z]{3,} \d{4}|\d{2}[-\/]\d{2}[-\/]\d{4})/i;
     const fechaHoraRegex = /(?:\w+,\s)?(\d{2} \w{3,}\. \d{4})\s*-\s*(\d{2}:\d{2})/i; // Detecta "Martes, 04 feb. 2025 - 14:02"
 
