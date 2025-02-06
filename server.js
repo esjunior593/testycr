@@ -115,26 +115,31 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
     console.log("✅ Se detectó un comprobante de Banco del Pacífico.");
     banco = "BANCO DEL PACÍFICO";
 
-    // 🔹 Regex mejoradas
+    // 🔹 Mejor regex
     const numeroRegex = /Transacci[oó]n\s+(\d+)/i;
-    const montoRegex = /Valor:\s*\$?\s*(\d+[\.,]?\d{0,2})/i; // Captura correctamente valores con decimales
+    const montoRegex = /Valor:\s*\$?\s*(\d+)/i; // Captura números sin punto decimal
 
     let matchNumero = text.match(numeroRegex);
     let matchMonto = text.match(montoRegex);
 
     numero = matchNumero ? matchNumero[1].trim() : "-";
-    monto = matchMonto ? matchMonto[1].trim().replace(",", ".") : "-";
+    monto = matchMonto ? matchMonto[1].trim() : "-";
+
+    // 🔹 Aplicar corrección solo si es Banco del Pacífico
+    if (monto !== "-" && !monto.includes(".") && parseInt(monto) > 99) {
+        monto = (parseInt(monto) / 100).toFixed(2); // Convierte "350" a "3.50"
+        console.log("⚠️ Monto corregido para Banco del Pacífico:", monto);
+    }
 
     console.log("📌 Número de transacción detectado:", numero);
-    console.log("💰 Monto detectado:", monto);
+    console.log("💰 Monto detectado después de corrección:", monto);
 
-    // **Si encuentra el número, lo reconoce como comprobante válido**
     if (numero !== "-") {
         console.log("✅ Comprobante válido, se enviará a la base de datos.");
         return { 
             numero, 
             nombres: "Desconocido", 
-            monto,  // Ahora guarda el monto correctamente
+            monto,  
             fecha: moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss"), 
             banco 
         };
