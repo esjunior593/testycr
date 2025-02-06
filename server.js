@@ -116,14 +116,19 @@ function extraerDatosOCR(text) {
         const montoRegex = /Valor:\s*([\d,\.]+)/i;
         const fechaRegex = /Fecha\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
     
-        // Extraer datos
+        // Extraer número de comprobante (transacción)
         numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
+    
+        // Extraer monto (corrige el problema donde OCR pone `350` en lugar de `3.50`)
+        monto = text.match(montoRegex) ? parseFloat(text.match(montoRegex)[1]) / 100 : "-";
     
         // Extraer y formatear fecha correctamente
-        fecha = text.match(fechaRegex) 
-            ? moment(`${text.match(fechaRegex)[1]} ${text.match(fechaRegex)[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
-            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        if (text.match(fechaRegex)) {
+            const fechaMatch = text.match(fechaRegex);
+            fecha = moment(`${fechaMatch[1]} ${fechaMatch[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
+        } else {
+            fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        }
     }
     
     
