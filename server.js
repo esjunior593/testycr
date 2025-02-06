@@ -111,14 +111,13 @@ function extraerDatosOCR(text) {
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
    // 🔹 Banco del Pacífico (Depósito)
-// 🔹 Banco del Pacífico (Depósito)
 else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
     console.log("✅ Se detectó un comprobante de Banco del Pacífico.");
     banco = "BANCO DEL PACÍFICO";
 
-    // 🔹 Mejor regex para detectar el número de transacción
+    // 🔹 Regex mejoradas
     const numeroRegex = /Transacci[oó]n\s+(\d+)/i;
-    const montoRegex = /Valor:\s*(\d+[\.,]?\d{0,2})/i; // Nuevo: captura "Valor: 350"
+    const montoRegex = /Valor:\s*\$?\s*(\d+[\.,]?\d{0,2})/i; // Captura correctamente valores con decimales
 
     let matchNumero = text.match(numeroRegex);
     let matchMonto = text.match(montoRegex);
