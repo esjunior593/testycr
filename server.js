@@ -31,24 +31,31 @@ db.connect(err => {
 
 
 function extraerDatosOCR(text) {
-    let numero = "-", nombres = "-", monto = "-", fecha = "-", banco = "DESCONOCIDO";
+    // 🔹 Si el OCR extrajo muy poco texto, pedir una imagen más clara
+if (text.length < 100) {  // Si el texto extraído es muy corto
+    console.log("⚠️ El comprobante es borroso o ilegible.");
+    return { 
+        mensaje: "⚠️ La imagen del comprobante no es clara.",
+        resumen: "📌 Intenta enviar una imagen con mejor iluminación y sin reflejos para que podamos procesarla correctamente."
+    };
+}
 
-    console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
+// 🔍 Lista de palabras clave que indican que es un comprobante
+const palabrasClave = [
+    "Banco", "Transacción", "Fecha", "Monto", "Valor", "Depósito", 
+    "Comprobante", "Secuencial", "Usuario", "Identificación", "Forma de Pago"
+];
 
-    
+const contienePalabrasClave = palabrasClave.some(palabra => text.includes(palabra));
 
-    // Lista de palabras clave que indican que es un comprobante
-    const palabrasClave = [
-        "Banco", "Transferencia", "No.", "Valor debitado", "Comisión", "Fecha",
-        "Monto", "Depósito", "Referencia", "ha enviado $", "Número de comprobante"
-    ];
-
-    // Buscar el número de comprobante
-    const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
-    let matchNumero = text.match(comprobanteRegex);
-    if (matchNumero) {
-        numero = matchNumero[1].trim();
-    }
+// 🔹 Si el texto no tiene ninguna palabra clave, lo descartamos como imagen no válida
+if (!contienePalabrasClave) {
+    console.log("❌ OCR detectó texto, pero no parece un comprobante.");
+    return { 
+        mensaje: "❌ La imagen no parece ser un comprobante de pago.",
+        resumen: "📌 Asegúrate de enviar una foto clara del comprobante sin cortes ni reflejos."
+    };
+}
 
     // 🔹 Banco del Pacífico (corrección del monto)
     if (/BANCO DEL PAC[IÍ]FICO/i.test(text) || /BdP/i.test(text)) {
