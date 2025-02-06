@@ -2,6 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const axios = require('axios');
+const moment = require('moment-timezone'); // Importar Moment.js con soporte de zona horaria
 require('dotenv').config();
 
 const app = express();
@@ -31,20 +32,19 @@ db.connect(err => {
 function extraerDatosOCR(text) {
     const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?)[:\s#-]*(\d+)/i;
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
-    const montoRegex = /\$?\s?(\d+\.\d{2})/i;
+    const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i;
 
     let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
     const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : "-";
     let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
 
-    // Obtener la fecha actual del servidor en formato YYYY-MM-DD si no hay fecha en el OCR
-    let fecha = new Date().toISOString().split("T")[0]; 
+    // Obtener la fecha y hora actual en la zona horaria de Ecuador (Guayaquil)
+    let fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm"); 
 
     console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha });
 
     return { numero, nombres, monto, fecha };
 }
-
 
 // Obtener todos los comprobantes
 app.get('/comprobantes', (req, res) => {
@@ -101,8 +101,8 @@ app.post('/comprobantes', (req, res) => {
         }
 
         // Insertar en MySQL con los datos extraídos
-        db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp) VALUES (?, ?, ?, ?, ?)',
-            [numero, nombres, "Pago recibido", fecha, whatsapp], (err) => {
+        db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp, monto) VALUES (?, ?, ?, ?, ?, ?)',
+            [numero, nombres, "Pago recibido", fecha, whatsapp, monto], (err) => {
                 if (err) {
                     console.error("❌ Error en la inserción:", err);
                     return res.status(200).json({ message: "❌ Error al guardar el comprobante", resumen: null });
@@ -113,26 +113,6 @@ app.post('/comprobantes', (req, res) => {
 
                 res.status(200).json({ message: `✅ Comprobante registrado exitosamente desde el número ${whatsapp}.`, resumen });
             });
-    });
-});
-
-// Actualizar un comprobante
-app.put('/comprobantes/:id', (req, res) => {
-    const { id } = req.params;
-    const { numero, nombres, descripcion, fecha } = req.body;
-    db.query('UPDATE Comprobante SET numero = ?, nombres = ?, descripcion = ?, fecha = ? WHERE id = ?',
-        [numero, nombres, descripcion, fecha, id], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: '✅ Comprobante actualizado exitosamente' });
-        });
-});
-
-// Eliminar un comprobante
-app.delete('/comprobantes/:id', (req, res) => {
-    const { id } = req.params;
-    db.query('DELETE FROM Comprobante WHERE id = ?', [id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: '✅ Comprobante eliminado exitosamente' });
     });
 });
 
