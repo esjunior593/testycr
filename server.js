@@ -37,8 +37,8 @@ function extraerDatosOCR(text) {
     const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : "-";
     let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
 
-    // Obtener la fecha actual del servidor en formato YYYY-MM-DD
-    const fecha = new Date().toISOString().split("T")[0];
+    // Obtener la fecha actual del servidor en formato YYYY-MM-DD si no hay fecha en el OCR
+    let fecha = new Date().toISOString().split("T")[0]; 
 
     console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha });
 
