@@ -51,7 +51,7 @@ function extraerDatosOCR(text) {
     }
 
     // 🔹 Banco del Pacífico (corrección del monto)
-    if (/BANCO DEL PAC[IÍ]FICO/i.test(text) || /BdP/i.test(text)) {
+    else if (/BANCO DEL PAC[IÍ]FICO/i.test(text) || /BdP/i.test(text)) {
         banco = "BANCO DEL PACÍFICO";
         
         // 🔹 Mejoramos la regex del monto para capturarlo correctamente
@@ -75,6 +75,7 @@ function extraerDatosOCR(text) {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
     }
+    
     // Banco de Loja
     else if (/BANCO DE LOJA/i.test(text)) {
         banco = "BANCO DE LOJA";
@@ -198,24 +199,42 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
 
     // 🔹 Banco Pichincha
     else if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
+        console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
         banco = "DEPÓSITO - BANCO PICHINCHA";
-
+    
+        // 🛠 Expresiones Regulares Mejoradas
+        const comprobanteRegex = /Documento\.*:\s*(\d+)/i; 
+        const nombresRegex = /Nombre CNB\.*:\s*([A-Za-z\s]+)/i;
         const montoRegex = /Efectivo\.*:\s*\$?\s*(\d+[\.,]?\d{0,2})/i;
         const fechaRegex = /Fecha\.*:\s*(\d{4})\/([a-zA-Z]+)\/(\d{2})\s*-\s*(\d{2}:\d{2})/i;
-
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
-
+    
+        // 📌 Extraer número de comprobante correctamente desde "Documento.: 270297"
+        const numeroMatch = text.match(comprobanteRegex);
+        numero = numeroMatch ? numeroMatch[1] : "-";
+    
+        // 📌 Extraer nombre correcto sin "RUC CNB"
+        const nombresMatch = text.match(nombresRegex);
+        nombres = nombresMatch ? nombresMatch[1].trim() : "-";
+    
+        // 📌 Extraer monto correctamente
+        const montoMatch = text.match(montoRegex);
+        monto = montoMatch ? montoMatch[1] : "-";
+    
+        // 📌 Extraer fecha correctamente y formatearla
         if (text.match(fechaRegex)) {
             const fechaMatch = text.match(fechaRegex);
-            const meses = {
+            const mesEnEspanol = {
                 "ene": "Enero", "feb": "Febrero", "mar": "Marzo", "abr": "Abril",
                 "may": "Mayo", "jun": "Junio", "jul": "Julio", "ago": "Agosto",
                 "sep": "Septiembre", "oct": "Octubre", "nov": "Noviembre", "dic": "Diciembre"
             };
-            fecha = `${fechaMatch[3]} ${meses[fechaMatch[2]] || fechaMatch[2]} ${fechaMatch[1]} ${fechaMatch[4]}`;
+            const mes = fechaMatch[2].toLowerCase();
+            fecha = `${fechaMatch[3]} ${mesEnEspanol[mes] || mes} ${fechaMatch[1]} ${fechaMatch[4]}`;
         } else {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
+    
+        console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
     }
 
     // 🔹 Banco Internacional
