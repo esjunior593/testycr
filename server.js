@@ -151,9 +151,22 @@ app.post('/comprobantes', (req, res) => {
         return res.status(200).json({ message: "❌ No se recibió información válida", resumen: null });
     }
 
-    const { numero, nombres, monto, fecha } = extraerDatosOCR(text);
+    const datosExtraidos = extraerDatosOCR(text);
 
-    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp });
+    // Si la imagen no es un comprobante, retorna el mensaje y evita la inserción
+    if (datosExtraidos.mensaje) {
+        return res.status(200).json({ message: datosExtraidos.mensaje, resumen: null });
+    }
+
+    let { numero, nombres, monto, fecha, banco } = datosExtraidos;
+
+    // Verificar si los datos esenciales están presentes
+    if (!numero || numero === "-" || !monto || monto === "-") {
+        console.log("🚫 No se pudo extraer información válida del comprobante.");
+        return res.status(200).json({ message: "❌ No se pudo extraer información válida del comprobante.", resumen: null });
+    }
+
+    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp, banco });
 
     // Verificar si el comprobante ya existe en MySQL
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
@@ -175,7 +188,7 @@ app.post('/comprobantes', (req, res) => {
 
         // Insertar en MySQL con los datos extraídos
         db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp, monto) VALUES (?, ?, ?, ?, ?, ?)',
-            [numero, nombres, "Pago recibido", fecha, whatsapp, monto], (err) => {
+            [numero, nombres || "Desconocido", "Pago recibido", fecha, whatsapp, monto], (err) => {
                 if (err) {
                     console.error("❌ Error en la inserción:", err);
                     return res.status(200).json({ message: "❌ Error al guardar el comprobante", resumen: null });
@@ -188,6 +201,7 @@ app.post('/comprobantes', (req, res) => {
             });
     });
 });
+
 
 // Iniciar el servidor en Railway
 app.listen(PORT, () => {
