@@ -131,12 +131,13 @@ function extraerDatosOCR(text) {
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
     // 🔹 Banco del Pacífico (Depósito)
-else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacción/i.test(text)) {
+// 🔹 Banco del Pacífico (Depósito)
+else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
     banco = "BANCO DEL PACÍFICO";
 
     const numeroRegex = /Transacción\s*(\d+)/i;
     const nombresRegex = /Nombre:\s*([\w\s]+)/i;
-    const montoRegex = /Valor:\s*([\d,\.]+)/i;
+    const montoRegex = /Valor:\s*(\d+[\.,]?\d{0,2})/i;
     const fechaRegex = /Fecha\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/i;
 
     // Extraer datos
@@ -154,6 +155,7 @@ else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacción/i.
         fecha = moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss");
     }
 }
+
 
     // 🔹 Banco Guayaquil
     else if (/Banco Guayaquil/i.test(text) || /No\.\d+/i.test(text)) {
