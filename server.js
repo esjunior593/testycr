@@ -104,20 +104,21 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-    else if (text.includes("D1")) {
+    else if (text.includes("d1")) {
         banco = "D1";
-        const comprobanteRegex = /No\. Comprobante\s*(\d+)/i;
-        const nombresRegex = /Nombre\s*([A-Za-z\s]+)/i;
-        const montoRegex = /Monto\s*\$?(\d+[\.,]\d{2})/i;
-        const fechaRegex = /Fecha y Hora\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/i;
+        const comprobanteRegex = /Nro\. de transacción\s*(\d+)/i;
+        const nombresRegex = /Pagaste a\s*([A-Za-z\s]+)/i;
+        const montoRegex = /\$(\d+[\.,]\d{2})/i;
+        const fechaRegex = /Fecha de pago\s*(\d{2} [a-z]{3} \d{4} - \d{2}:\d{2} [ap]m)/i;
     
         numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
         nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
         monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
         fecha = text.match(fechaRegex) 
-            ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
+            ? moment(text.match(fechaRegex)[1], "DD MMM YYYY - hh:mm a").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
+    
     
     // 🔹 Banco del Pacífico (Depósito)
 else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
