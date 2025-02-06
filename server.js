@@ -65,34 +65,34 @@ function extraerDatosOCR(text) {
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
     else if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
-        console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA"); // 🔍 Verifica si el IF se activa
-    
-        // ✅ Es un comprobante de DEPÓSITO
+        console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
         banco = "DEPÓSITO - BANCO PICHINCHA";
-        
-        // 📌 Extraer el número de documento después de "Documento:"
+    
+        // Captura el número de documento correctamente
         const comprobanteRegex = /Documento:\s*(\d+)/i;
-        // 📌 Extraer nombres correctamente
-        const nombresRegex = /Nombre(?: CNB)?:\s*([A-Za-z\s]+)/i;
-        // 📌 Extraer el monto después de "Efectivo:"
+        const nombresRegex = /Nombre CNB:\s*([A-Za-z\s]+)/i;
         const montoRegex = /Efectivo:\s*\$?\s*(\d+[\.,]\d{2})/i;
-        // 📌 Extraer la fecha correctamente
         const fechaRegex = /Fecha.*?(\d{4}\/[a-zA-Z]+\/\d{2})\s*(\d{2}:\d{2})/i;
     
-        // 🔹 Verificar y asignar valores correctamente
-        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
-        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
+        // Extraer número de comprobante
+        const numeroMatch = text.match(comprobanteRegex);
+        numero = numeroMatch ? numeroMatch[1] : "-";
     
-        // 🔹 Manejo de fecha
+        // Extraer nombre correcto sin "RUC CNB"
+        const nombresMatch = text.match(nombresRegex);
+        nombres = nombresMatch ? nombresMatch[1].trim() : "-";
+    
+        // Extraer monto
+        const montoMatch = text.match(montoRegex);
+        monto = montoMatch ? montoMatch[1] : "-";
+    
+        // Extraer fecha correctamente
         if (text.match(fechaRegex)) {
             const fechaMatch = text.match(fechaRegex);
             fecha = `${fechaMatch[1]} ${fechaMatch[2]}`;
         } else {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
-    
-        console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco }); // 🔍 Verifica los datos extraídos
     }
     
     
