@@ -52,7 +52,7 @@ function extraerDatosOCR(text) {
     if (/BANCO DEL PAC[IÍ]FICO/i.test(text) || /BdP/i.test(text)) {
         banco = "BANCO DEL PACÍFICO";
     
-        const montoRegex = /ha enviado \$(\d+\.\d{2})/i;
+        const montoRegex = /(?:ha enviado|transferiste|enviaste)\s*\$?(\d+[\.,]?\d{2})/i;
         const fechaRegex = /(\d{2})\s*(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\.\s*(\d{4})\s*-\s*(\d{2}:\d{2})/i;
     
         monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
