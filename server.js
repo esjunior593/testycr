@@ -148,9 +148,6 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
     }
 }
 
-
-
-
     // 🔹 DeUna
     else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
         banco = "d1";
@@ -231,23 +228,16 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         fecha = text.match(fechaRegex) 
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
-    }// 🔹 Si no se detecta ningún banco conocido, pero hay un número de comprobante, se guarda como DESCONOCIDO
-    else {
+    }else {
+        console.log("📌 Comprobante no reconocido, aplicando reglas generales");
         banco = "DESCONOCIDO";
         const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?)\s*[:#-]*\s*([A-Z0-9.-]{6,})/i;
-        const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
         const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i;
-
-        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
-        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
+    
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
         monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
         fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-
-    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
-    return { numero, nombres, monto, fecha, banco };
-}
-
 
     // 🔹 Si se detecta un número de comprobante, se considera válido
     if (numero !== "-") {
