@@ -33,13 +33,18 @@ db.connect(err => {
 function extraerDatosOCR(text) {
     const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?|NO. COMPROBANTE|Documento|Control|Transacción|Secuencial Tbba)\s*[:#.-]?\s*([\w\d]+)/i;
 
-
+    const documentoRegex = /Documento\s*[:#.-]?\s*(\d+)/i;
 
 
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
     const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i;
 
     let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+
+// Si no encontró el número con la regex principal, intenta con Documento:
+if (numero === "-") {
+    numero = text.match(documentoRegex) ? text.match(documentoRegex)[1] : "-";
+}
 
     const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : " ";
     let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
