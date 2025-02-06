@@ -148,14 +148,17 @@ app.post('/comprobantes', (req, res) => {
     let { text, whatsapp } = req.body;
 
     if (!text || !whatsapp) {
-        return res.status(200).json({ message: "❌ No se recibió información válida", resumen: null });
+        return res.status(200).json({ message: "❌ No se recibió información válida", resumen: "📌 Intente de nuevo con una imagen clara del comprobante." });
     }
 
     const datosExtraidos = extraerDatosOCR(text);
 
     // Si la imagen no es un comprobante, retorna el mensaje y evita la inserción
     if (datosExtraidos.mensaje) {
-        return res.status(200).json({ message: datosExtraidos.mensaje, resumen: null });
+        return res.status(200).json({ 
+            message: "❌ La imagen no parece ser un comprobante de pago. Asegúrate de enviar una imagen válida.", 
+            resumen: "📌 Intente de nuevo con una imagen clara del comprobante."
+        });
     }
 
     let { numero, nombres, monto, fecha, banco } = datosExtraidos;
@@ -163,7 +166,10 @@ app.post('/comprobantes', (req, res) => {
     // Verificar si los datos esenciales están presentes
     if (!numero || numero === "-" || !monto || monto === "-") {
         console.log("🚫 No se pudo extraer información válida del comprobante.");
-        return res.status(200).json({ message: "❌ No se pudo extraer información válida del comprobante.", resumen: null });
+        return res.status(200).json({ 
+            message: "❌ No se pudo extraer información válida del comprobante.", 
+            resumen: "📌 Asegúrese de que el texto sea legible e intente nuevamente."
+        });
     }
 
     console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp, banco });
@@ -172,7 +178,10 @@ app.post('/comprobantes', (req, res) => {
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
         if (err) {
             console.error("❌ Error en SELECT:", err);
-            return res.status(200).json({ message: "❌ Error interno del servidor", resumen: null });
+            return res.status(200).json({ 
+                message: "❌ Error interno del servidor", 
+                resumen: "📌 Intente nuevamente más tarde." 
+            });
         }
 
         if (results.length > 0) {
@@ -191,7 +200,10 @@ app.post('/comprobantes', (req, res) => {
             [numero, nombres || "Desconocido", "Pago recibido", fecha, whatsapp, monto], (err) => {
                 if (err) {
                     console.error("❌ Error en la inserción:", err);
-                    return res.status(200).json({ message: "❌ Error al guardar el comprobante", resumen: null });
+                    return res.status(200).json({ 
+                        message: "❌ Error al guardar el comprobante", 
+                        resumen: "📌 Intente nuevamente o contacte a soporte." 
+                    });
                 }
                 console.log("✅ Comprobante guardado en la base de datos");
 
@@ -201,6 +213,7 @@ app.post('/comprobantes', (req, res) => {
             });
     });
 });
+
 
 
 // Iniciar el servidor en Railway
