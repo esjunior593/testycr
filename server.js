@@ -29,22 +29,16 @@ db.connect(err => {
 
 // Función para extraer datos del OCR según diferentes formatos de comprobantes
 function extraerDatosOCR(text) {
-    const comprobanteRegex = /(?:Comprobante\s*Nro\.?|Número de comprobante|Número de transacción|Código de transacción|Referencia|N°|No\.)[:\s]+(\d+)/i;
+    const comprobanteRegex = /(?:Comprobante\s*Nro\.?|Número de transacción|Código de transacción|Referencia|N°|No\.)[:\s]+(\d+)/i;
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
-    const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i; // Detecta $4.00, 4.00, $4,00 o 4,00
-    const fechaRegex = /(?:Fecha[:\s]+)?(\d{1,2}[-/ ]?\w{3,}[-/ ]?\d{4}|\d{2}\/\d{2}\/\d{4})/i;
-    const fechaHoraRegex = /(?:\w+, )?(\d{2} \w{3,}\. \d{4})\s*(?:—|-|,)?\s*(\d{2}:\d{2})/i;
+    const montoRegex = /\$?\s?(\d+\.\d{2})/i;
 
-    let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : " ";
-    const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : " ";
-    let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
-    let fecha = text.match(fechaRegex) ? text.match(fechaRegex)[1] : " ";
+    let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+    const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : "-";
+    let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
 
-    // Si no encuentra fecha en formato normal, busca el formato "Martes, 04 feb. 2025 - 14:02"
-    if (fecha === "No encontrada" && text.match(fechaHoraRegex)) {
-        const fechaMatch = text.match(fechaHoraRegex);
-        fecha = `${fechaMatch[1]} ${fechaMatch[2]}`; // "04 feb. 2025 14:02"
-    }
+    // Obtener fecha actual del servidor en formato YYYY-MM-DD
+    const fecha = new Date().toISOString().split("T")[0];
 
     return { numero, nombres, monto, fecha };
 }
