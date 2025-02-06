@@ -130,7 +130,6 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD MMM YYYY - hh:mm a").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-    // 🔹 Banco del Pacífico (Depósito)
 // 🔹 Banco del Pacífico (Depósito)
 else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
     banco = "BANCO DEL PACÍFICO";
@@ -138,13 +137,23 @@ else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n
     const numeroRegex = /Transacción\s*(\d+)/i;
 
     // Extraer número de transacción
-    numero = text.match(numeroRegex) ? text.match(numeroRegex)[1].trim() : "-";
+    let matchNumero = text.match(numeroRegex);
+    numero = matchNumero ? matchNumero[1].trim() : "-";
 
-    // Si encuentra el número de transacción, es válido
+    console.log("📌 Número de transacción detectado:", numero);
+
+    // **Si encuentra el número, devuelve el comprobante como válido**
     if (numero !== "-") {
-        return { numero, nombres: "-", monto: "-", fecha: "-", banco };
+        return { 
+            numero, 
+            nombres: "-", 
+            monto: "-", 
+            fecha: moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss"), 
+            banco 
+        };
     }
 }
+
 
 
 
