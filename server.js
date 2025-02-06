@@ -41,21 +41,23 @@ function extraerDatosOCR(text) {
         "Monto", "Depósito", "Referencia", "ha enviado $", "Número de comprobante"
     ];
     
-    let esComprobante = palabrasClave.some(palabra => text.includes(palabra));
-    
     // 🔹 Buscar el número de comprobante y reasignar sin redeclarar
-    const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
-    let matchNumero = text.match(comprobanteRegex);
-    if (matchNumero) {
-        numero = matchNumero[1].trim(); // ✅ Ahora solo lo reasignamos, sin `let`
-    }
-    
-    // 🔹 Si detectamos el número de comprobante, lo tratamos como un comprobante válido
-    if (!esComprobante && numero === "-") {
-        return { 
-            mensaje: "❌ La imagen no parece ser un comprobante de pago. Asegúrate de enviar una imagen válida.", 
-            resumen: "📌 Intente de nuevo con una imagen clara del comprobante."
-        };
+const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
+let matchNumero = text.match(comprobanteRegex);
+if (matchNumero) {
+    numero = matchNumero[1].trim(); // ✅ Ahora solo lo reasignamos, sin `let`
+}
+
+// 🔹 Ahora, si encontramos número de comprobante, siempre lo consideramos válido
+if (numero !== "-") {
+    return { numero, nombres, monto, fecha, banco }; // ✅ Devuelve datos, no error
+}
+
+// 🔹 Si no detectamos número ni palabras clave, lo marcamos como imagen inválida
+return { 
+    mensaje: "❌ La imagen no parece ser un comprobante de pago. Asegúrate de enviar una imagen válida.", 
+    resumen: "📌 Intente de nuevo con una imagen clara del comprobante."
+};
     }
 
     // Detectar el banco y extraer datos
