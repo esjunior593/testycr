@@ -147,6 +147,12 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         console.log("❌ No se detectó un número de transacción válido.");
     }
 }
+else if (!text || text.length < 50) {
+    return res.status(200).json({ 
+        message: "❌ No se pudo extraer la información del comprobante.",
+        resumen: "📌 Asegúrate de enviar una imagen clara y legible."
+    });
+}
 
 
 
