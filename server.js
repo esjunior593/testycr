@@ -64,27 +64,28 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-    else if (/Banco Guayaquil/i.test(text)) {
+    //Reconocemos si es de Guayaquil
+    else if (/Banco Guayaquil/i.test(text) || /No\.\d+/i.test(text)) {
         banco = "BANCO GUAYAQUIL";
     
         const comprobanteRegex = /No\.\s*(\d+)/i;
-        const nombresRegex = /(?:Vera Litardo Blanca Herminia|Amelia Ruiz)/i;
-        const montoRegex = /Valor debitado\s*\$\s*(\d+\.\d{2})/i;
+        const montoDebitadoRegex = /Valor debitado\s*\$\s*(\d+\.\d{2})/i;
         const comisionRegex = /Comisión\s*\$\s*(\d+\.\d{2})/i;
         const fechaRegex = /(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/;
+        const nombresRegex = /(?:Vera Litardo Blanca Herminia|Amelia Ruiz)/i;
     
         numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
-        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[0].trim() : "-";
-        monto = text.match(montoRegex) ? parseFloat(text.match(montoRegex)[1]) : 0;
+        montoDebitado = text.match(montoDebitadoRegex) ? parseFloat(text.match(montoDebitadoRegex)[1]) : 0;
         comision = text.match(comisionRegex) ? parseFloat(text.match(comisionRegex)[1]) : 0;
-        
-        // Calculamos el monto real restando la comisión
-        montoReal = (monto - comision).toFixed(2);
+        monto = (montoDebitado - comision).toFixed(2);
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[0].trim() : "-";
     
         fecha = text.match(fechaRegex) 
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
+    
+    // Reconocer depósito para Banco Pichincha
     else if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
         console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
         banco = "DEPÓSITO - BANCO PICHINCHA";
