@@ -53,7 +53,7 @@ function extraerDatosOCR(text) {
     // Si no encuentra ninguna palabra clave, asumimos que no es un comprobante
     if (!esComprobante) {
         console.log("🚫 La imagen no parece un comprobante de pago.");
-        return { mensaje: "❌ La imagen no parece ser un comprobante de pago. Asegúrate de enviar una imagen válida." };
+        return { mensaje: "❌ La imagen, no parece ser un comprobante de pago. Asegúrate de enviar una imagen válida." };
     }
 
     // Detectar el banco y extraer datos
