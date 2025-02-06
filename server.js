@@ -75,7 +75,7 @@ function extraerDatosOCR(text) {
         banco = "BANCO DEL PACÍFICO";
     
         const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
-        const nombresRegex = /([A-Za-z\s]+) ha enviado \$/i;
+        const nombresRegex = /ha enviado \$(?:\d+\.\d{2}) a ([A-Za-z\s]+)/i;
         const montoRegex = /ha enviado \$(\d+\.\d{2})/i;
         const fechaRegex = /(\d{2})\s*(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\.\s*(\d{4})\s*-\s*(\d{2}:\d{2})/i;
     
@@ -93,6 +93,7 @@ function extraerDatosOCR(text) {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
     }
+    
     
     else if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
         console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
