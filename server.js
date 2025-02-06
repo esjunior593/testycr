@@ -109,48 +109,50 @@ function extraerDatosOCR(text) {
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
     // Deposito Pacifico
-    else if (/Banco\s*Del\s*Pac[ií1l|!]+f[ií1l|!]+co/i.test(text) && /Tipo\s*De\s*Transacci[oó0]+n/i.test(text)) {
+    else if (/Banco\s*Del\s*Pac[ií1l|!]+f[ií1l|!]+co/i.test(text) && 
+         /Comprobante\s*De\s*Trans[a-zA-Z]*c[ií1l|!0]+n?/i.test(text)) {
     
-        banco = "BANCO DEL PACÍFICO - DEPÓSITO";
-    
-        console.log("✅ Detectado Depósito en Banco del Pacífico");
-    
-        const comprobanteRegex = /Transacci[oó0]+n\s*(\d+)/i; // Número de transacción
-        const montoRegex = /Valor:\s*\$?\s*([\d,\.]+)/i; // Monto con corrección OCR
-        const fechaRegex = /Fecha\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i; // Fecha con hora
-    
-        // 🔹 LOG para verificar qué texto OCR estamos procesando
-        console.log("🔍 Texto OCR recibido:", text);
-    
-        // 🔹 Extraer número de transacción
-        let matchNumero = text.match(comprobanteRegex);
-        if (matchNumero) {
-            numero = matchNumero[1].trim();
-            console.log("📌 Número de transacción extraído:", numero);
-        } else {
-            console.log("🚨 No se encontró el número de transacción");
-        }
-    
-        // 🔹 Extraer y corregir monto (si es `350`, lo convierte a `3.50`)
-        let matchMonto = text.match(montoRegex);
-        if (matchMonto) {
-            let montoExtraido = matchMonto[1].replace(",", ".");
-            monto = parseFloat(montoExtraido) > 100 ? (parseFloat(montoExtraido) / 100).toFixed(2) : montoExtraido;
-            console.log("📌 Monto extraído:", monto);
-        } else {
-            console.log("🚨 No se encontró el monto");
-        }
-    
-        // 🔹 Extraer y formatear fecha correctamente
-        let matchFecha = text.match(fechaRegex);
-        if (matchFecha) {
-            fecha = moment(`${matchFecha[1]} ${matchFecha[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
-            console.log("📌 Fecha extraída:", fecha);
-        } else {
-            fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
-            console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
-        }
+    banco = "BANCO DEL PACÍFICO - DEPÓSITO";
+
+    console.log("✅ Detectado Depósito en Banco del Pacífico");
+
+    const comprobanteRegex = /Transacci[oó0]+n\s*(\d+)/i; // Número de transacción
+    const montoRegex = /Valor:\s*\$?\s*([\d,\.]+)/i; // Monto con corrección OCR
+    const fechaRegex = /Fecha\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i; // Fecha con hora
+
+    // 🔹 LOG para verificar qué texto OCR estamos procesando
+    console.log("🔍 Texto OCR recibido:", text);
+
+    // 🔹 Extraer número de transacción
+    let matchNumero = text.match(comprobanteRegex);
+    if (matchNumero) {
+        numero = matchNumero[1].trim();
+        console.log("📌 Número de transacción extraído:", numero);
+    } else {
+        console.log("🚨 No se encontró el número de transacción");
     }
+
+    // 🔹 Extraer y corregir monto (si es `350`, lo convierte a `3.50`)
+    let matchMonto = text.match(montoRegex);
+    if (matchMonto) {
+        let montoExtraido = matchMonto[1].replace(",", ".");
+        monto = parseFloat(montoExtraido) > 100 ? (parseFloat(montoExtraido) / 100).toFixed(2) : montoExtraido;
+        console.log("📌 Monto extraído:", monto);
+    } else {
+        console.log("🚨 No se encontró el monto");
+    }
+
+    // 🔹 Extraer y formatear fecha correctamente
+    let matchFecha = text.match(fechaRegex);
+    if (matchFecha) {
+        fecha = moment(`${matchFecha[1]} ${matchFecha[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
+        console.log("📌 Fecha extraída:", fecha);
+    } else {
+        fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
+    }
+}
+
     
         
     // 🔹 DeUna
