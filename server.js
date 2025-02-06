@@ -35,10 +35,10 @@ function extraerDatosOCR(text) {
     const fechaRegex = /(?:Fecha[:\s]+)(\d{1,2} [a-zA-Z]{3,} \d{4}|\d{2}\/\d{2}\/\d{4})/i;
     const fechaHoraRegex = /(?:\w+,\s)?(\d{2} \w{3,}\. \d{4})\s*-\s*(\d{2}:\d{2})/i; // Detecta "Martes, 04 feb. 2025 - 14:02"
 
-    let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "No encontrado";
-    const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : "No encontrado";
-    let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "No encontrado";
-    let fecha = text.match(fechaRegex) ? text.match(fechaRegex)[1] : "No encontrada";
+    let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : " ";
+    const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : " ";
+    let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
+    let fecha = text.match(fechaRegex) ? text.match(fechaRegex)[1] : " ";
 
     // Si no encuentra fecha en formato normal, busca el formato "Martes, 04 feb. 2025 - 14:02"
     if (fecha === "No encontrada" && text.match(fechaHoraRegex)) {
