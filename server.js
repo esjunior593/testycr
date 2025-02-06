@@ -31,13 +31,13 @@ db.connect(err => {
 function extraerDatosOCR(text) {
     const comprobanteRegex = /(?:(?:Comprobante|Número de transacción|Código de transacción|Referencia|N°|No\.)[:\s]+)(\d+)/i;
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
-    const montoRegex = /(?:\$|VALOR[:\s]*)?([\d,.]+)/i; // Ahora detecta "VALOR 3.50"
+    const montoRegex = /(?:Monto|Valor|Total Debitado)[:\s]*\$\s?([\d,.]+)/i; // Ahora captura solo si hay estas palabras
     const fechaRegex = /(?:Fecha[:\s]+)(\d{1,2} [a-zA-Z]{3,} \d{4}|\d{2}\/\d{2}\/\d{4})/i;
-    const fechaHoraRegex = /Fecha\s*-\s*(\d{4}-\d{2}-\d{2}) - Hora (\d{2}:\d{2}:\d{2})/i; // Nueva detección de fecha-hora
-    
+    const fechaHoraRegex = /Fecha\s*-\s*(\d{4}-\d{2}-\d{2}) - Hora (\d{2}:\d{2}:\d{2})/i;
+
     let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "No encontrado";
     const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : "No encontrado";
-    const monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "No encontrado";
+    let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "No encontrado";
     let fecha = text.match(fechaRegex) ? text.match(fechaRegex)[1] : "No encontrada";
 
     // Si no se encuentra la fecha con el formato normal, busca la nueva fecha con hora
