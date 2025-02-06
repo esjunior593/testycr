@@ -52,10 +52,11 @@ function extraerDatosOCR(text) {
     if (/BANCO DEL PAC[IÍ]FICO/i.test(text) || /BdP/i.test(text)) {
         banco = "BANCO DEL PACÍFICO";
         
-        const montoRegex = /(?:ha enviado|transferiste|enviaste)\s*\$?\s*([\d,\.]+)/i;
+        // 🔹 Mejoramos la regex del monto para capturarlo correctamente
+        const montoRegex = /ha enviado\s*\$?\s*([\d,\.]+)/i;
         const fechaRegex = /(\d{2})\s*(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\.\s*(\d{4})\s*-\s*(\d{2}:\d{2})/i;
     
-        // 🔹 Extraer monto (permite espacios o comas)
+        // 🔹 Intentamos extraer el monto
         let matchMonto = text.match(montoRegex);
         monto = matchMonto ? matchMonto[1].trim().replace(",", ".") : "-";
     
@@ -72,6 +73,7 @@ function extraerDatosOCR(text) {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
     }
+    
     
     // 🔹 DeUna
     else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
