@@ -37,7 +37,14 @@ function extraerDatosOCR(text) {
 
     // Palabras clave que deben aparecer en un comprobante de pago
     const palabrasClave = [
-        "Banco", "Transferencia", "No.", "Valor debitado", "Comisión", "Fecha", "Monto", "Depósito", "Referencia"
+        "ha enviado $", 
+        "Número de comprobante", 
+        "Banco", 
+        "Transferencia", 
+        "Depósito", 
+        "Monto", 
+        "Valor debitado", 
+        "Referencia"
     ];
 
     // Verificar si el texto extraído tiene alguna de las palabras clave
