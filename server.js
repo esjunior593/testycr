@@ -64,6 +64,25 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
+    if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
+        // 📌 Es un comprobante de DEPÓSITO
+        banco = "DEPÓSITO - BANCO PICHINCHA";
+        const comprobanteRegex = /Documento:\s*(\d+)/i;
+        const nombresRegex = /Nombre\s*[CNB:.]*\s*([A-Za-z\s]+)/i;
+        const montoRegex = /Efectivo:\s*\$?\s*(\d+[\.,]\d{2})/i;
+        const fechaRegex = /Fecha.*?(\d{4}\/[a-zA-Z]+\/\d{2})\s*(\d{2}:\d{2})/i;
+    
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
+    
+        if (text.match(fechaRegex)) {
+            const fechaMatch = text.match(fechaRegex);
+            fecha = `${fechaMatch[1]} ${fechaMatch[2]}`;
+        } else {
+            fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        }
+    }
     // Detectar si es de deuna
     if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
         banco = "d1";
@@ -78,41 +97,6 @@ function extraerDatosOCR(text) {
         fecha = text.match(fechaRegex) 
             ? moment(text.match(fechaRegex)[1], "DD MMM YYYY - hh:mm a").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
-    }
-    if (text.includes("BANCO PICHINCHA")) {
-        if (/DEPÓSITO|CUENTA DE AHORROS/.test(text)) {
-            // 📌 Es un comprobante de DEPÓSITO
-            banco = "BANCO PICHINCHA - DEPÓSITO";
-            const comprobanteRegex = /Documento:\s*(\d+)/i;
-            const nombresRegex = /Nombre\s*[CNB:.]*\s*([A-Za-z\s]+)/i;
-            const montoRegex = /Efectivo:\s*\$?\s*(\d+[\.,]\d{2})/i;
-            const fechaRegex = /Fecha.*?(\d{4}\/[a-zA-Z]+\/\d{2})\s*(\d{2}:\d{2})/i;
-    
-            numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
-            nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
-            monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
-    
-            if (text.match(fechaRegex)) {
-                const fechaMatch = text.match(fechaRegex);
-                fecha = `${fechaMatch[1]} ${fechaMatch[2]}`;
-            } else {
-                fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
-            }
-        } 
-        else if (/¡Transferencia exitosa!|Comprobante:/.test(text)) {
-            // 📌 Es un comprobante de TRANSFERENCIA
-            banco = "BANCO PICHINCHA - TRANSFERENCIA";
-            const comprobanteRegex = /Comprobante:\s*(\d+)/i;
-            const nombresRegex = /Cuenta destino\s*Nombre\s*([\w\s]+)/i;
-            const montoRegex = /Monto:\s*\$?\s*(\d+[\.,]\d{2})/i;
-            const fechaRegex = /Fecha\s*(\d{2} \w+ \d{4})/i;
-    
-            numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
-            nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
-            monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
-    
-            fecha = text.match(fechaRegex) ? text.match(fechaRegex)[1] : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
-        }
     }
     else {
         banco = "DESCONOCIDO";
