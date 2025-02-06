@@ -29,6 +29,8 @@ db.connect(err => {
 });
 
 // Función para extraer datos del OCR según diferentes formatos de comprobantes
+const moment = require('moment-timezone'); // Importamos Moment.js con zona horaria
+
 function extraerDatosOCR(text) {
     const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?)[:\s#-]*(\d+)/i;
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
@@ -38,7 +40,7 @@ function extraerDatosOCR(text) {
     const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : "-";
     let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
 
-    // Obtener la fecha y hora actual en la zona horaria de Ecuador (Guayaquil)
+    // **Garantizar que la fecha NUNCA quede vacía**
     let fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm"); 
 
     console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha });
