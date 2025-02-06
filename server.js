@@ -31,21 +31,41 @@ db.connect(err => {
 
 
 function extraerDatosOCR(text) {
-    const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?)\s*[:#-]*\s*([A-Z0-9.-]{6,})/i;
-    const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
-    const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i;
+    let numero, nombres, monto, fecha, banco;
 
-    let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+    // Detectar el banco
+    if (text.includes("BANCO INTERNACIONAL")) {
+        banco = "BANCO INTERNACIONAL";
+        // Aplicar la fórmula específica para BANCO INTERNACIONAL
+        const comprobanteRegex = /No\. Comprobante\s*(\d+)/i;
+        const nombresRegex = /Nombre\s*([A-Za-z\s]+)/i;
+        const montoRegex = /Monto\s*\$?(\d+[\.,]\d{2})/i;
+        const fechaRegex = /Fecha y Hora\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/i;
 
-    const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : " ";
-    let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : " ";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
+        fecha = text.match(fechaRegex) ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    } else if (text.includes("OTRO BANCO")) {
+        banco = "OTRO BANCO";
+        // Aplicar la fórmula específica para OTRO BANCO
+        // Aquí puedes agregar las expresiones regulares y la lógica para otro banco
+    } else {
+        banco = "DESCONOCIDO";
+        // Aplicar la fórmula genérica si no se detecta un banco específico
+        const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?)\s*[:#-]*\s*([A-Z0-9.-]{6,})/i;
+        const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
+        const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i;
 
-    // **Garantizar que la fecha NUNCA quede vacía**
-    let fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm"); 
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : " ";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
+        fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
 
-    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha });
+    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
 
-    return { numero, nombres, monto, fecha };
+    return { numero, nombres, monto, fecha, banco };
 }
 
 // Obtener todos los comprobantes
