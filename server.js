@@ -108,6 +108,23 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
+    // Deposito Pacifico
+    else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
+        banco = "BANCO DEL PACÍFICO - DEPÓSITO";
+    
+        const comprobanteRegex = /Transacci[oó]n\s*(\d+)/i; // Número de transacción
+        const montoRegex = /Valor:\s*([\d,\.]+)/i;
+        const fechaRegex = /Fecha\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
+    
+        // Extraer datos
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
+    
+        // Extraer y formatear fecha correctamente
+        fecha = text.match(fechaRegex) 
+            ? moment(`${text.match(fechaRegex)[1]} ${text.match(fechaRegex)[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
+            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
     
     
     // 🔹 DeUna
