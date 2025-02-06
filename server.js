@@ -64,7 +64,7 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     } 
-    else if (/BANCO DEL PAC[IÍ]FICO/i.test(text)) {
+    else if (/BANCO DEL PAC[IÍ]FICO/i.test(text) || /BdP/i.test(text)) {
         banco = "BANCO DEL PACÍFICO";
     
         const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
