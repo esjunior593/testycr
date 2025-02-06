@@ -37,24 +37,24 @@ function extraerDatosOCR(text) {
 
     // Palabras clave que deben aparecer en un comprobante de pago
     const palabrasClave = [
-        "ha enviado $", 
-        "Número de comprobante", 
-        "Banco", 
-        "Transferencia", 
-        "Depósito", 
-        "Monto", 
-        "Valor debitado", 
-        "Referencia"
+        "Banco", "Transferencia", "No.", "Valor debitado", "Comisión", "Fecha", 
+        "Monto", "Depósito", "Referencia", "ha enviado $", "Número de comprobante"
     ];
 
     // Verificar si el texto extraído tiene alguna de las palabras clave
     let esComprobante = palabrasClave.some(palabra => text.includes(palabra));
 
-    // Si no encuentra ninguna palabra clave, asumimos que no es un comprobante
-    if (!esComprobante) {
-        console.log("🚫 La imagen no parece un comprobante de pago.");
-        return { mensaje: "❌ La imagen, no parece ser un comprobante de pago. Asegúrate de enviar una imagen válida." };
-    }
+    // 🔹 Si se detecta el número de comprobante, se considera válido aunque falten otros datos
+// 🔹 Si se detecta el número de comprobante, se considera válido aunque falten otros datos
+const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
+let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+
+if (!esComprobante && numero === "-") {
+    return { 
+        mensaje: "❌ La imagen no parece ser un comprobante de pago. Asegúrate de enviar una imagen válida.", 
+        resumen: "📌 Intente de nuevo con una imagen clara del comprobante."
+    };
+}
 
     // Detectar el banco y extraer datos
     if (text.includes("BANCO INTERNACIONAL")) {
