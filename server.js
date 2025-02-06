@@ -211,20 +211,36 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
     }
 }
     
-    else if (/NO\.\s*COMPROBANTE\s*[:\-]?\s*(\d+)/i.test(text) || text.includes("AUSTRO")) {
-        banco = "BANCO DEL AUSTRO";
-        const comprobanteRegex = /NO\.\s*COMPROBANTE\s*[:\-]?\s*(\d+)/i;
-        const nombresRegex = /BENEFICIARIO:\s*([A-Z\s]+)/i;
-        const montoRegex = /VALOR TRANSFERIDO:\s*\$\s*(\d+[\.,]\d{2})/i;
-        const fechaRegex = /FECHA:\s*(\d{2}-\d{2}-\d{4})/i;
+else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
+    banco = "BANCO DEL AUSTRO";
+    console.log("✅ Detectado Banco del Austro");
 
-        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
-        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
-        fecha = text.match(fechaRegex) 
-            ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
-            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    const comprobanteRegex = /NO\.\s*COMPROBANTE[^0-9]*(\d+)/i;
+    const montoRegex = /VALOR TRANSFERIDO:\s*\$\s*(\d+[\.,]\d{2})/i;
+    const fechaRegex = /FECHA:\s*(\d{2}-\d{2}-\d{4})/i;
+
+    let matchNumero = text.match(comprobanteRegex);
+    if (matchNumero) {
+        numero = matchNumero[1].trim();
+        console.log("📌 Número de comprobante extraído:", numero);
+    } else {
+        console.log("🚨 No se encontró el número de comprobante");
     }
+
+    let matchMonto = text.match(montoRegex);
+    monto = matchMonto ? matchMonto[1].trim() : "-";
+    console.log("📌 Monto extraído:", monto);
+
+    let matchFecha = text.match(fechaRegex);
+    if (matchFecha) {
+        fecha = moment(matchFecha[1], "DD-MM-YYYY").format("DD MMM. YYYY");
+        console.log("📌 Fecha extraída:", fecha);
+    } else {
+        fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
+    }
+}
+
     else {
         banco = "DESCONOCIDO";
         const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?)\s*[:#-]*\s*([A-Z0-9.-]{6,})/i;
