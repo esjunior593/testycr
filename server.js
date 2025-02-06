@@ -111,33 +111,36 @@ function extraerDatosOCR(text) {
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
           // 🔹 Banco del Pacífico (Depósito)
-else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
-    banco = "BANCO DEL PACÍFICO";
-
-    // 🔹 Mejor regex para detectar el número de transacción
-    const numeroRegex = /Transacci[oó]n\s+(\d+)/i;
-    let matchNumero = text.match(numeroRegex);
-
-    console.log("📌 Regex Resultado:", matchNumero);
-
-    numero = matchNumero ? matchNumero[1].trim() : "-";
-
-    // 🔹 Verificación en logs
-    console.log("📌 Número de transacción detectado:", numero);
-
-    // **Si encuentra el número, lo reconoce como comprobante válido**
-    if (numero !== "-") {
-        return { 
-            numero, 
-            nombres: "Desconocido", 
-            monto: "0.00", 
-            fecha: moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss"), 
-            banco 
-        };
-    } else {
-        console.log("❌ No se detectó un número de transacción válido.");
-    }
-}
+          else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
+            console.log("✅ Se detectó un comprobante de Banco del Pacífico.");
+            banco = "BANCO DEL PACÍFICO";
+        
+            // 🔹 Mejor regex para detectar el número de transacción
+            const numeroRegex = /Transacci[oó]n\s+(\d+)/i;
+            let matchNumero = text.match(numeroRegex);
+        
+            console.log("📌 Regex Resultado:", matchNumero);
+        
+            numero = matchNumero ? matchNumero[1].trim() : "-";
+        
+            // 🔹 Verificación en logs
+            console.log("📌 Número de transacción detectado:", numero);
+        
+            // **Si encuentra el número, lo reconoce como comprobante válido**
+            if (numero !== "-") {
+                console.log("✅ Comprobante válido, se enviará a la base de datos.");
+                return { 
+                    numero, 
+                    nombres: "Desconocido", 
+                    monto: "0.00", 
+                    fecha: moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss"), 
+                    banco 
+                };
+            } else {
+                console.log("❌ No se detectó un número de transacción válido.");
+            }
+        }
+        
 
     // 🔹 DeUna
     else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
