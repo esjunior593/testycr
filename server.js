@@ -51,14 +51,15 @@ function extraerDatosOCR(text) {
     // 🔹 Banco del Pacífico (corrección del monto)
     if (/BANCO DEL PAC[IÍ]FICO/i.test(text) || /BdP/i.test(text)) {
         banco = "BANCO DEL PACÍFICO";
-    
+        
         const montoRegex = /(?:ha enviado|transferiste|enviaste)\s*\$?\s*([\d,\.]+)/i;
         const fechaRegex = /(\d{2})\s*(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\.\s*(\d{4})\s*-\s*(\d{2}:\d{2})/i;
-
-        // Extraer monto y formatear
-        monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
-
-        // Extraer y formatear fecha
+    
+        // 🔹 Extraer monto (permite espacios o comas)
+        let matchMonto = text.match(montoRegex);
+        monto = matchMonto ? matchMonto[1].trim().replace(",", ".") : "-";
+    
+        // 🔹 Extraer y formatear fecha correctamente
         if (text.match(fechaRegex)) {
             const fechaMatch = text.match(fechaRegex);
             const meses = {
@@ -71,6 +72,7 @@ function extraerDatosOCR(text) {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
     }
+    
     // 🔹 DeUna
     else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
         banco = "d1";
