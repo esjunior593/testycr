@@ -64,20 +64,22 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-    if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
-        // 📌 Es un comprobante de DEPÓSITO
+    else if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
+        console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA"); // 🔍 Verifica si el IF se activa
+    
+        // ✅ Es un comprobante de DEPÓSITO
         banco = "DEPÓSITO - BANCO PICHINCHA";
         
-        // 🔹 Extraer el número de documento correctamente
-        const comprobanteRegex = /Documento:\s*(\d{6,})/i;
-        // 🔹 Extraer nombres correctamente
+        // 📌 Extraer el número de documento después de "Documento:"
+        const comprobanteRegex = /Documento:\s*(\d+)/i;
+        // 📌 Extraer nombres correctamente
         const nombresRegex = /Nombre(?: CNB)?:\s*([A-Za-z\s]+)/i;
-        // 🔹 Extraer el monto después de "Efectivo:"
+        // 📌 Extraer el monto después de "Efectivo:"
         const montoRegex = /Efectivo:\s*\$?\s*(\d+[\.,]\d{2})/i;
-        // 🔹 Extraer la fecha correctamente
+        // 📌 Extraer la fecha correctamente
         const fechaRegex = /Fecha.*?(\d{4}\/[a-zA-Z]+\/\d{2})\s*(\d{2}:\d{2})/i;
     
-        // 🔹 Asignar valores con fallback a "-"
+        // 🔹 Verificar y asignar valores correctamente
         numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
         nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
         monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
@@ -89,11 +91,13 @@ function extraerDatosOCR(text) {
         } else {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
+    
+        console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco }); // 🔍 Verifica los datos extraídos
     }
     
     
     // Detectar si es de deuna
-    if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
+    else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
         banco = "d1";
         const comprobanteRegex = /Nro\. de transacción\s*(\d+)/i;
         const nombresRegex = /Pagaste a\s*([A-Za-z\s]+)/i;
