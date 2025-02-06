@@ -110,7 +110,35 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-          
+          // 🔹 Banco del Pacífico (Depósito)
+else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
+    banco = "BANCO DEL PACÍFICO";
+
+    // 🔹 Mejor regex para detectar el número de transacción
+    const numeroRegex = /Transacci[oó]n\s+(\d+)/i;
+    let matchNumero = text.match(numeroRegex);
+
+    console.log("📌 Regex Resultado:", matchNumero);
+
+    numero = matchNumero ? matchNumero[1].trim() : "-";
+
+    // 🔹 Verificación en logs
+    console.log("📌 Número de transacción detectado:", numero);
+
+    // **Si encuentra el número, lo reconoce como comprobante válido**
+    if (numero !== "-") {
+        return { 
+            numero, 
+            nombres: "Desconocido", 
+            monto: "0.00", 
+            fecha: moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss"), 
+            banco 
+        };
+    } else {
+        console.log("❌ No se detectó un número de transacción válido.");
+    }
+}
+
     // 🔹 DeUna
     else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
         banco = "d1";
@@ -130,33 +158,6 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD MMM YYYY - hh:mm a").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-// 🔹 Banco del Pacífico (Depósito)
-else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
-    banco = "BANCO DEL PACÍFICO";
-
-    const numeroRegex = /Transacción\s*(\d+)/i;
-
-    // Extraer número de transacción
-    let matchNumero = text.match(numeroRegex);
-    numero = matchNumero ? matchNumero[1].trim() : "-";
-
-    console.log("📌 Número de transacción detectado:", numero);
-
-    // **Si encuentra el número, devuelve el comprobante como válido**
-    if (numero !== "-") {
-        return { 
-            numero, 
-            nombres: "-", 
-            monto: "-", 
-            fecha: moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss"), 
-            banco 
-        };
-    }
-}
-
-
-
-
     // 🔹 Banco Guayaquil
     else if (/Banco Guayaquil/i.test(text) || /No\.\d+/i.test(text)) {
         banco = "BANCO GUAYAQUIL";
