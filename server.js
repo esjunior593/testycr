@@ -238,11 +238,14 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
     }
 
     // 🔹 Banco Internacional
-    else if (text.includes("BANCO INTERNACIONAL")) {
+    else if (text.replace(/\s+/g, ' ').toUpperCase().includes("BANCO INTERNACIONAL")) {
         banco = "BANCO INTERNACIONAL";
     
-        // Normalizar el texto eliminando saltos de línea y espacios extras
-        let cleanText = text.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+        // Normalizar el texto eliminando caracteres especiales y espacios extra
+        let cleanText = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Elimina tildes
+                         .replace(/[^\w\s$.,:/-]/g, '') // Elimina caracteres raros
+                         .replace(/\s+/g, ' ') // Sustituye múltiples espacios por uno solo
+                         .trim();
     
         const comprobanteRegex = /No\.?\s*Comprobante\s*(\d+)/i;
         const nombresRegex = /Nombre\s+([A-Z\s]+?)(?=\sInstitución|\sCuenta|\sDescripción)/i;
