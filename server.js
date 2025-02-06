@@ -24,8 +24,23 @@ db.connect(err => {
         console.error('Error de conexión a MySQL:', err);
         return;
     }
-    console.log('Conectado a MySQL');
+    console.log('✅ Conectado a MySQL');
 });
+
+// Función para extraer datos del OCR según diferentes formatos de comprobantes
+function extraerDatosOCR(text) {
+    const comprobanteRegex = /(?:(?:Comprobante|Número de transacción|Código de transacción|Referencia|N°|No\.)[:\s]+)(\d+)/i;
+    const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
+    const montoRegex = /\$\s?([\d,.]+)/i;
+    const fechaRegex = /(?:Fecha[:\s]+)(\d{1,2} [a-zA-Z]{3,} \d{4}|\d{2}\/\d{2}\/\d{4})/i;
+
+    const numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "No encontrado";
+    const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : "No encontrado";
+    const monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "No encontrado";
+    const fecha = text.match(fechaRegex) ? text.match(fechaRegex)[1] : "No encontrada";
+
+    return { numero, nombres, monto, fecha };
+}
 
 // Obtener todos los comprobantes
 app.get('/comprobantes', (req, res) => {
@@ -51,20 +66,17 @@ app.get('/comprobantes/:id', (req, res) => {
     });
 });
 
-// Crear un comprobante
+// Crear un comprobante con OCR
 app.post('/comprobantes', (req, res) => {
-    let { text, whatsapp } = req.body; // Recibir el número de WhatsApp
+    let { text, whatsapp } = req.body;
 
     if (!text || !whatsapp) {
         return res.status(200).json({ message: "❌ No se recibió información válida", resumen: null });
     }
 
-    // Extraer datos del texto OCR
-    const numero = text.match(/Comprobante: (\d+)/) ? text.match(/Comprobante: (\d+)/)[1] : "No encontrado";
-    const fecha = text.match(/Fecha (\d{2} \w{3} \d{4})/) ? text.match(/Fecha (\d{2} \w{3} \d{4})/)[1] : "No encontrada";
-    const monto = text.match(/Monto[^\d]+([\d,.]+)/) ? text.match(/Monto[^\d]+([\d,.]+)/)[1] : "No encontrado";
+    const { numero, nombres, monto, fecha } = extraerDatosOCR(text);
 
-    console.log("📥 Datos extraídos:", { numero, fecha, monto, whatsapp });
+    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp });
 
     // Verificar si el comprobante ya existe en MySQL
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
@@ -75,30 +87,28 @@ app.post('/comprobantes', (req, res) => {
 
         if (results.length > 0) {
             console.log("🚫 Comprobante ya registrado:", numero);
-            
-            // Extraer datos del comprobante existente
-            const comprobanteExistente = results[0];
-            const resumen = `📌 **Número:** ${comprobanteExistente.numero}\n📞 **Enviado desde:** ${comprobanteExistente.whatsapp}\n📅 **Fecha:** ${comprobanteExistente.fecha}\n💰 **Monto:** $${monto}`;
 
-            return res.status(200).json({ 
-                message: `🚫 Este comprobante ya ha sido presentado por el número ${comprobanteExistente.whatsapp}.`, 
-                resumen: resumen 
+            const resumen = `📌 **Número:** ${results[0].numero}\n📞 **Enviado desde:** ${results[0].whatsapp}\n📅 **Fecha:** ${results[0].fecha}\n💰 **Monto:** $${monto}`;
+
+            return res.status(200).json({
+                message: `🚫 Este comprobante ya ha sido presentado por el número ${results[0].whatsapp}.`,
+                resumen: resumen
             });
         }
 
-        // Insertar en MySQL con el número de WhatsApp
-        db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp) VALUES (?, ?, ?, ?, ?)', 
-        [numero, "Usuario", "Pago recibido", fecha, whatsapp], (err) => {
-            if (err) {
-                console.error("❌ Error en la inserción:", err);
-                return res.status(200).json({ message: "❌ Error al guardar el comprobante", resumen: null });
-            }
-            console.log("✅ Comprobante guardado en la base de datos");
+        // Insertar en MySQL con los datos extraídos
+        db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp) VALUES (?, ?, ?, ?, ?)',
+            [numero, nombres, "Pago recibido", fecha, whatsapp], (err) => {
+                if (err) {
+                    console.error("❌ Error en la inserción:", err);
+                    return res.status(200).json({ message: "❌ Error al guardar el comprobante", resumen: null });
+                }
+                console.log("✅ Comprobante guardado en la base de datos");
 
-            const resumen = `📌 **Número:** ${numero}\n📞 **Enviado desde:** ${whatsapp}\n📅 **Fecha:** ${fecha}\n💰 **Monto:** $${monto}`;
+                const resumen = `📌 **Número:** ${numero}\n📞 **Enviado desde:** ${whatsapp}\n📅 **Fecha:** ${fecha}\n💰 **Monto:** $${monto}`;
 
-            res.status(200).json({ message: `✅ Comprobante registrado exitosamente desde el número ${whatsapp}.`, resumen });
-        });
+                res.status(200).json({ message: `✅ Comprobante registrado exitosamente desde el número ${whatsapp}.`, resumen });
+            });
     });
 });
 
@@ -109,7 +119,7 @@ app.put('/comprobantes/:id', (req, res) => {
     db.query('UPDATE Comprobante SET numero = ?, nombres = ?, descripcion = ?, fecha = ? WHERE id = ?',
         [numero, nombres, descripcion, fecha, id], (err) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: 'Comprobante actualizado exitosamente' });
+            res.json({ message: '✅ Comprobante actualizado exitosamente' });
         });
 });
 
@@ -118,10 +128,11 @@ app.delete('/comprobantes/:id', (req, res) => {
     const { id } = req.params;
     db.query('DELETE FROM Comprobante WHERE id = ?', [id], (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'Comprobante eliminado exitosamente' });
+        res.json({ message: '✅ Comprobante eliminado exitosamente' });
     });
 });
 
+// Iniciar el servidor en Railway
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });
