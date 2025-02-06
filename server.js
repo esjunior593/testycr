@@ -73,6 +73,23 @@ function extraerDatosOCR(text) {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
     }
+    // Banco de Loja
+    else if (/BANCO DE LOJA/i.test(text)) {
+        banco = "BANCO DE LOJA";
+    
+        const comprobanteRegex = /Nro\. comprobante:\s*(\d+)/i;
+        const montoRegex = /Monto transferido\s*\$?([\d,\.]+)/i;
+        const fechaRegex = /(\d{2}\/\d{2}\/\d{4})/i;
+    
+        // Extraer datos
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
+        
+        // Extraer y formatear fecha correctamente
+        fecha = text.match(fechaRegex) 
+            ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY").format("DD MMM. YYYY") 
+            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
     
     
     // 🔹 DeUna
