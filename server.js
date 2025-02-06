@@ -50,13 +50,13 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     } 
-    else if (/NO\.\s*COMPROBANTE\s*[:\-]?\s*(\d+)/i.test(text) || text.includes("AUSTRO")) {
+    else if (/NO\.\s*COMPROBANTE/i.test(text) || text.includes("AUSTRO")) {
         banco = "BANCO DEL AUSTRO";
-        const comprobanteRegex = /NO\.\s*COMPROBANTE\s*[:\-]?\s*(\d+)/i;
+        const comprobanteRegex = /NO\.\s*COMPROBANTE[^0-9]*(\d+)/i;
         const nombresRegex = /BENEFICIARIO:\s*([A-Z\s]+)/i;
         const montoRegex = /VALOR TRANSFERIDO:\s*\$\s*(\d+[\.,]\d{2})/i;
         const fechaRegex = /FECHA:\s*(\d{2}-\d{2}-\d{4})/i;
-
+    
         numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
         nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
         monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
