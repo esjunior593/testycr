@@ -91,6 +91,23 @@ function extraerDatosOCR(text) {
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
     
+    // Depositos JEP
+    else if (/JUVENTUD ECUATORIANA PROGRESISTA/i.test(text) || /JEP/i.test(text)) {
+        banco = "COOPERATIVA JEP";
+    
+        const comprobanteRegex = /FERENCIA\s*\+\s*(\d+)/i; // Número de referencia
+        const montoRegex = /R DEPOSITADO\s*:\s*USD\s*([\d,\.]+)/i;
+        const fechaRegex = /ECHA\s*:\s*(\d{2}-\d{2}-\d{4})/i;
+    
+        // Extraer datos
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
+    
+        // Extraer y formatear fecha correctamente
+        fecha = text.match(fechaRegex) 
+            ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
+            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
     
     // 🔹 DeUna
     else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
