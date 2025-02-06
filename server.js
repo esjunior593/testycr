@@ -89,7 +89,7 @@ app.post('/comprobantes', (req, res) => {
         if (results.length > 0) {
             console.log("🚫 Comprobante ya registrado:", numero);
 
-            const resumen = `📌 **Número:** ${results[0].numero}\n📞 **Enviado desde:** ${results[0].whatsapp}\n📅 **Fecha:** ${results[0].fecha}\n💰 **Monto:** $${monto}`;
+            const resumen = `📌 **Número:** ${results[0].numero}\n📞 **Enviado desde:** ${results[0].whatsapp}\n📅 **Fecha de envío:** ${results[0].fecha}\n💰 **Monto:** $${monto}`;
 
             return res.status(200).json({
                 message: `🚫 Este comprobante ya ha sido presentado por el número ${results[0].whatsapp}.`,
@@ -106,7 +106,7 @@ app.post('/comprobantes', (req, res) => {
                 }
                 console.log("✅ Comprobante guardado en la base de datos");
 
-                const resumen = `📌 **Número:** ${numero}\n📞 **Enviado desde:** ${whatsapp}\n📅 **Fecha:** ${fecha}\n💰 **Monto:** $${monto}`;
+                const resumen = `📌 **Número:** ${numero}\n📞 **Enviado desde:** ${whatsapp}\n📅 **Fecha de envío:** ${fecha}\n💰 **Monto:** $${monto}`;
 
                 res.status(200).json({ message: `✅ Comprobante registrado exitosamente desde el número ${whatsapp}.`, resumen });
             });
