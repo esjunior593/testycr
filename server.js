@@ -28,8 +28,7 @@ db.connect(err => {
     console.log('✅ Conectado a MySQL');
 });
 
-// Función para extraer datos del OCR según diferentes formatos de comprobantes
-const moment = require('moment-timezone'); // Importamos Moment.js con zona horaria
+
 
 function extraerDatosOCR(text) {
     const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?)[:\s#-]*(\d+)/i;
