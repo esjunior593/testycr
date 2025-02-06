@@ -86,6 +86,7 @@ function extraerDatosOCR(text) {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
     }
+    
     else if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
         console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
         banco = "DEPÓSITO - BANCO PICHINCHA";
