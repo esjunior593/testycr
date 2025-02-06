@@ -46,7 +46,7 @@ function extraerDatosOCR(text) {
         monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
         fecha = text.match(fechaRegex) ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     } 
-    else if (text.includes("banco del austro") || text.includes("AUSTRO")) {
+    else if (text.match(/NO\.\s*COMPROBANTE:/) || text.includes("AUSTRO")) {
         banco = "BANCO DEL AUSTRO";
         const comprobanteRegex = /NO\. COMPROBANTE:\s*(\d+)/i;
         const nombresRegex = /BENEFICIARIO:\s*([A-Z\s]+)/i;
@@ -74,6 +74,7 @@ function extraerDatosOCR(text) {
 
     return { numero, nombres, monto, fecha, banco };
 }
+
 
 
 // Obtener todos los comprobantes
