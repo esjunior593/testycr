@@ -68,25 +68,25 @@ function extraerDatosOCR(text) {
         console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
         banco = "DEPÓSITO - BANCO PICHINCHA";
     
-        // Captura correctamente el número de documento desde "Documento: 270297"
-        const comprobanteRegex = /Documento[:\s]+(\d+)/i;
-        const nombresRegex = /Nombre CNB[:\s]+([A-Za-z\s]+)/i;
-        const montoRegex = /Efectivo[:\s]+\$?\s*(\d+[\.,]?\d{0,2})/i;
-        const fechaRegex = /Fecha[:\s]+(\d{4})\/([a-zA-Z]+)\/(\d{2})\s+(\d{2}:\d{2})/i;
+        // 🛠 Expresiones Regulares Mejoradas
+        const comprobanteRegex = /Documento\.*:\s*(\d+)/i; 
+        const nombresRegex = /Nombre CNB\.*:\s*([A-Za-z\s]+)/i;
+        const montoRegex = /Efectivo\.*:\s*\$?\s*(\d+[\.,]?\d{0,2})/i;
+        const fechaRegex = /Fecha\.*:\s*(\d{4})\/([a-zA-Z]+)\/(\d{2})\s*-\s*(\d{2}:\d{2})/i;
     
-        // Extraer número de comprobante desde "Documento:"
+        // 📌 Extraer número de comprobante correctamente desde "Documento.: 270297"
         const numeroMatch = text.match(comprobanteRegex);
         numero = numeroMatch ? numeroMatch[1] : "-";
     
-        // Extraer nombre correcto sin "RUC CNB"
+        // 📌 Extraer nombre correcto sin "RUC CNB"
         const nombresMatch = text.match(nombresRegex);
         nombres = nombresMatch ? nombresMatch[1].trim() : "-";
     
-        // Extraer monto correcto
+        // 📌 Extraer monto correctamente
         const montoMatch = text.match(montoRegex);
         monto = montoMatch ? montoMatch[1] : "-";
     
-        // Extraer fecha correctamente y formatearla
+        // 📌 Extraer fecha correctamente y formatearla
         if (text.match(fechaRegex)) {
             const fechaMatch = text.match(fechaRegex);
             const mesEnEspanol = {
