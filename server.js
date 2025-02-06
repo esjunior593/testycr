@@ -69,12 +69,12 @@ function extraerDatosOCR(text) {
         banco = "DEPÓSITO - BANCO PICHINCHA";
     
         // Captura el número de documento correctamente
-        const comprobanteRegex = /Documento:\s*(\d+)/i;
-        const nombresRegex = /Nombre CNB:\s*([A-Za-z\s]+)/i;
-        const montoRegex = /Efectivo:\s*\$?\s*(\d+[\.,]\d{2})/i;
-        const fechaRegex = /Fecha.*?(\d{4}\/[a-zA-Z]+\/\d{2})\s*(\d{2}:\d{2})/i;
+        const comprobanteRegex = /Documento[:\s]+(\d+)/i;
+        const nombresRegex = /Nombre CNB[:\s]+([A-Za-z\s]+)/i;
+        const montoRegex = /Efectivo[:\s]+\$?\s*(\d+[\.,]?\d{0,2})/i;
+        const fechaRegex = /Fecha[:\s]+(\d{4}\/[a-zA-Z]+\/\d{2})\s+(\d{2}:\d{2})/i;
     
-        // Extraer número de comprobante
+        // Extraer número de comprobante desde "Documento:"
         const numeroMatch = text.match(comprobanteRegex);
         numero = numeroMatch ? numeroMatch[1] : "-";
     
@@ -82,7 +82,7 @@ function extraerDatosOCR(text) {
         const nombresMatch = text.match(nombresRegex);
         nombres = nombresMatch ? nombresMatch[1].trim() : "-";
     
-        // Extraer monto
+        // Extraer monto correcto
         const montoMatch = text.match(montoRegex);
         monto = montoMatch ? montoMatch[1] : "-";
     
@@ -93,9 +93,7 @@ function extraerDatosOCR(text) {
         } else {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
-    }
-    
-    
+    } 
     // Detectar si es de deuna
     else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
         banco = "d1";
