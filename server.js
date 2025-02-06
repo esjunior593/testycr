@@ -64,6 +64,21 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD-MM-YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
+    // Detectar si es de deuna
+    if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
+        banco = "d1";
+        const comprobanteRegex = /Nro\. de transacción\s*(\d+)/i;
+        const nombresRegex = /Pagaste a\s*([A-Za-z\s]+)/i;
+        const montoRegex = /\$\s*(\d+[\.,]\d{2})/i;
+        const fechaRegex = /Fecha de pago\s*(\d{2} \w{3} \d{4} - \d{2}:\d{2} (?:am|pm))/i;
+
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
+        fecha = text.match(fechaRegex) 
+            ? moment(text.match(fechaRegex)[1], "DD MMM YYYY - hh:mm a").format("DD MMM. YYYY HH:mm") 
+            : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
     else {
         banco = "DESCONOCIDO";
         const comprobanteRegex = /(?:Comprobante(?:\s*Nro\.?)?|Número de transacción|Código de transacción|Referencia|N°|No\.?)\s*[:#-]*\s*([A-Z0-9.-]{6,})/i;
