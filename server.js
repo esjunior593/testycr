@@ -35,9 +35,9 @@ function extraerDatosOCR(text) {
     const nombresRegex = /(?:Para:|Beneficiario:|Perteneciente a:|Nombre:|Titular Cuenta:)\s*([A-Za-z\s]+)/i;
     const montoRegex = /\$?\s?(\d+[\.,]\d{2})/i;
 
-    let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : "-";
-    const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : "-";
-    let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
+    let numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1] : " ";
+    const nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1] : " ";
+    let monto = text.match(montoRegex) ? text.match(montoRegex)[1] : " ";
 
     // **Garantizar que la fecha NUNCA quede vacía**
     let fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm"); 
