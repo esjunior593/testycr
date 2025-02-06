@@ -242,11 +242,11 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         banco = "BANCO INTERNACIONAL";
     
         // Normalizar el texto eliminando saltos de línea y espacios extras
-        let cleanText = text.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+        let cleanText = text.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
     
         const comprobanteRegex = /No\.?\s*Comprobante\s*(\d+)/i;
-        const nombresRegex = /Nombre\s*([A-Za-z\s]+?)(?=\sInstitución|Cuenta)/i;
-        const montoRegex = /Monto\s*\$?(\d+[\.,]\d{2})/i;
+        const nombresRegex = /Nombre\s+([A-Z\s]+?)(?=\sInstitución|\sCuenta|\sDescripción)/i;
+        const montoRegex = /Monto\s*\$?(\d+[\.,]?\d{0,2})/i;
         const fechaRegex = /Fecha y Hora\s*(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2})/i;
     
         numero = cleanText.match(comprobanteRegex) ? cleanText.match(comprobanteRegex)[1].trim() : "-";
@@ -255,6 +255,12 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         fecha = cleanText.match(fechaRegex) 
             ? moment(cleanText.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    
+        console.log(`Banco: ${banco}`);
+        console.log(`Número de Comprobante: ${numero}`);
+        console.log(`Nombres: ${nombres}`);
+        console.log(`Monto: ${monto}`);
+        console.log(`Fecha: ${fecha}`);
     }
     
      else {
