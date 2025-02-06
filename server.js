@@ -68,7 +68,7 @@ function extraerDatosOCR(text) {
         console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
         banco = "DEPÓSITO - BANCO PICHINCHA";
     
-        // Captura el número de documento correctamente desde "Documento: 270297"
+        // Captura correctamente el número de documento desde "Documento: 270297"
         const comprobanteRegex = /Documento[:\s]+(\d+)/i;
         const nombresRegex = /Nombre CNB[:\s]+([A-Za-z\s]+)/i;
         const montoRegex = /Efectivo[:\s]+\$?\s*(\d+[\.,]?\d{0,2})/i;
@@ -99,7 +99,10 @@ function extraerDatosOCR(text) {
         } else {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
+    
+        console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
     }
+    
     // Detectar si es de deuna
     else if (/Nro\. de transacción/i.test(text) && /Fecha de pago/i.test(text)) {
         banco = "d1";
