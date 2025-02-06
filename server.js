@@ -111,20 +111,23 @@ function extraerDatosOCR(text) {
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
    // 🔹 Banco del Pacífico (Depósito)
+// 🔹 Banco del Pacífico (Depósito)
 else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
     console.log("✅ Se detectó un comprobante de Banco del Pacífico.");
     banco = "BANCO DEL PACÍFICO";
 
     // 🔹 Mejor regex para detectar el número de transacción
     const numeroRegex = /Transacci[oó]n\s+(\d+)/i;
-    let matchNumero = text.match(numeroRegex);
+    const montoRegex = /Valor:\s*(\d+[\.,]?\d{0,2})/i; // Nuevo: captura "Valor: 350"
 
-    console.log("📌 Regex Resultado:", matchNumero);
+    let matchNumero = text.match(numeroRegex);
+    let matchMonto = text.match(montoRegex);
 
     numero = matchNumero ? matchNumero[1].trim() : "-";
+    monto = matchMonto ? matchMonto[1].trim().replace(",", ".") : "-";
 
-    // 🔹 Verificación en logs
     console.log("📌 Número de transacción detectado:", numero);
+    console.log("💰 Monto detectado:", monto);
 
     // **Si encuentra el número, lo reconoce como comprobante válido**
     if (numero !== "-") {
@@ -132,7 +135,7 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         return { 
             numero, 
             nombres: "Desconocido", 
-            monto: "0.00", 
+            monto,  // Ahora guarda el monto correctamente
             fecha: moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss"), 
             banco 
         };
@@ -140,6 +143,7 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         console.log("❌ No se detectó un número de transacción válido.");
     }
 }
+
 
 
     // 🔹 DeUna
