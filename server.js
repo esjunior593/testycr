@@ -136,25 +136,16 @@ else if (/Banco Del Pac[ií]fico/i.test(text) && /Comprobante De Transacci[oó]n
     banco = "BANCO DEL PACÍFICO";
 
     const numeroRegex = /Transacción\s*(\d+)/i;
-    const nombresRegex = /Nombre:\s*([\w\s]+)/i;
-    const montoRegex = /Valor:\s*(\d+[\.,]?\d{0,2})/i;
-    const fechaRegex = /Fecha\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/i;
 
-    // Extraer datos
+    // Extraer número de transacción
     numero = text.match(numeroRegex) ? text.match(numeroRegex)[1].trim() : "-";
-    nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
-    monto = text.match(montoRegex) ? text.match(montoRegex)[1].replace(",", ".") : "-";
 
-    // Extraer y formatear fecha correctamente
-    if (text.match(fechaRegex)) {
-        const fechaMatch = text.match(fechaRegex);
-        fecha = fechaMatch[2] 
-            ? `${fechaMatch[1]} ${fechaMatch[2]}`
-            : fechaMatch[1];
-    } else {
-        fecha = moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss");
+    // Si encuentra el número de transacción, es válido
+    if (numero !== "-") {
+        return { numero, nombres: "-", monto: "-", fecha: "-", banco };
     }
 }
+
 
 
     // 🔹 Banco Guayaquil
