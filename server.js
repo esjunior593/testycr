@@ -64,6 +64,28 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     } 
+    else if (/BANCO DEL PAC[IÍ]FICO/i.test(text)) {
+        banco = "BANCO DEL PACÍFICO";
+    
+        const comprobanteRegex = /Número de comprobante:\s*(\d+)/i;
+        const nombresRegex = /([A-Za-z\s]+) ha enviado \$/i;
+        const montoRegex = /ha enviado \$(\d+\.\d{2})/i;
+        const fechaRegex = /(\d{2})\s*(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\.\s*(\d{4})\s*-\s*(\d{2}:\d{2})/i;
+    
+        // Extraer datos
+        numero = text.match(comprobanteRegex) ? text.match(comprobanteRegex)[1].trim() : "-";
+        nombres = text.match(nombresRegex) ? text.match(nombresRegex)[1].trim() : "-";
+        monto = text.match(montoRegex) ? text.match(montoRegex)[1] : "-";
+    
+        // Formatear fecha correctamente
+        if (text.match(fechaRegex)) {
+            const fechaMatch = text.match(fechaRegex);
+            const meses = { "ene": "Enero", "feb": "Febrero", "mar": "Marzo", "abr": "Abril", "may": "Mayo", "jun": "Junio", "jul": "Julio", "ago": "Agosto", "sep": "Septiembre", "oct": "Octubre", "nov": "Noviembre", "dic": "Diciembre" };
+            fecha = `${fechaMatch[1]} ${meses[fechaMatch[2]]} ${fechaMatch[3]} ${fechaMatch[4]}`;
+        } else {
+            fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        }
+    }
     else if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
         console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
         banco = "DEPÓSITO - BANCO PICHINCHA";
