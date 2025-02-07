@@ -430,10 +430,10 @@ app.post('/comprobantes', (req, res) => {
 
     // **CORRECCIÓN**: Solo verificar `numero`, no `monto`
     if (!numero || numero === "-") {
-        console.log("🚫 No se pudo extraer información válida del comprobante.");
-        return res.status(200).json({ 
-            message: "❌ No se pudo extraer información válida del comprobante.", 
-            resumen: "📌 Asegúrese de que el texto sea legible e intente nuevamente."
+        console.log("🚫 No se detectó un comprobante de pago.");
+        return res.status(200).json({
+            message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
+            resumen: "👉 *Soporte:* 0980757208 👈"
         });
     }
 
