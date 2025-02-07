@@ -55,7 +55,7 @@ function extraerDatosOCR(text) {
         banco = "DEPÓSITO - BANCO PICHINCHA";
     
         // 🛠 Expresiones Regulares Mejoradas
-        const comprobanteRegex = /Documento\.*[:;]\s*(\d+)/i; 
+        const comprobanteRegex = /Documento\.*\s*[:;]?\s*(\d+)/i;
         const nombresRegex = /Nombre CNB\.*[:;]\s*([\w\s]+)/i;
         const montoRegex = /Efectivo\.*[:;]\s*\$?\s*([\d,\.]+)/i;
         const fechaRegex = /Fecha\.*[:;]\s*(\d{4})\/([a-zA-Z]+)\/(\d{2})\s+(\d{2}:\d{2})/i;
