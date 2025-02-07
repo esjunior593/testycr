@@ -464,15 +464,20 @@ app.post('/comprobantes', (req, res) => {
 
         if (results.length > 0) {
             console.log("🚫 Comprobante ya registrado:", numero);
-
-            const resumen = `📌 **Número:** ${results[0].numero}\n📞 **Enviado desde:** ${results[0].whatsapp}\n📅 **Fecha de envío:** ${results[0].fecha}\n💰 **Monto:** $${monto}`;
-
+        
+            // Extraer los últimos 5 dígitos del número de WhatsApp
+            const numeroOculto = results[0].whatsapp.slice(-5);
+        
+            const resumen = `📌 **Número:** ${results[0].numero}
+        📞 **Enviado desde:** ${numeroOculto}
+        📅 **Fecha de envío:** ${results[0].fecha}
+        💰 **Monto:** $${monto}`;
+        
             return res.status(200).json({
-                message: `🚫 Este comprobante ya ha sido presentado por el número ${results[0].whatsapp}.`,
+                message: `🚫 Este comprobante ya ha sido presentado por el número ${numeroOculto}.`,
                 resumen: resumen
             });
         }
-
         // Insertar en MySQL con los datos extraídos
         db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp, monto) VALUES (?, ?, ?, ?, ?, ?)',
             [numero, nombres || "Desconocido", "Pago recibido", fecha, whatsapp, monto], (err) => {
