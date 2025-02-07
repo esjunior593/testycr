@@ -416,15 +416,7 @@ app.post('/comprobantes', (req, res) => {
         });
     }
 
-     // 🔥 Detectar si el mensaje recibido es un sticker
-     if (text.trim() === "" || text.length < 5) {
-        console.log("🚫 Se detectó un STICKER o imagen vacía.");
-        return res.status(200).json({ 
-            message: "🚫 Has enviado un sticker o una imagen sin texto.", 
-            resumen: "📌 Por favor, envía una imagen de un comprobante de pago válido."
-        });
-    }
-
+     
     const datosExtraidos = extraerDatosOCR(text);
 
     // Si la imagen no es un comprobante, retorna el mensaje y evita la inserción
