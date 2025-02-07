@@ -31,9 +31,28 @@ db.connect(err => {
 
 
 function extraerDatosOCR(text) {
-    let numero, nombres, monto, fecha, banco;
+    let numero = "-", nombres = "-", monto = "-", fecha = "-", banco = "DESCONOCIDO";
 
     console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
+
+     // **🔴 Verificar si el texto NO parece ser un comprobante de pago**
+     const palabrasClave = [
+        "Banco", "Transferencia", "No.", "Valor debitado", "Comisión", "Fecha",
+        "Monto", "Depósito", "Referencia", "ha enviado $", "Número de comprobante",
+        "Cuenta", "Institución financiera", "Pago recibido"
+    ];
+
+    let esComprobante = palabrasClave.some(palabra => text.toLowerCase().includes(palabra.toLowerCase()));
+
+    if (!esComprobante) {
+        console.log("🚫 No se detectó un comprobante de pago en la imagen.");
+        return {
+            message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
+            resumen: "👉 *Soporte:* 0980757208 👈"
+        };
+    }
+
+
 
     // Detectar el banco
     if (text.includes("BANCO INTERNACIONAL")) {
@@ -345,6 +364,17 @@ else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
     return { numero, nombres, monto, fecha, banco };
 }
 
+// **🔹 Si se detecta un número de comprobante, se considera válido y se envía a la BD**
+if (numero !== "-") {
+    return { numero, nombres, monto, fecha, banco };
+}
+
+// **🔴 Si no se detecta un comprobante válido, enviar el mensaje de soporte**
+console.log("🚫 No se detectó un comprobante de pago.");
+return {
+    message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
+    resumen: "👉 *Soporte:* 0980757208 👈"
+};
 
 
 
