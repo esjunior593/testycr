@@ -112,7 +112,7 @@ if (/No\.JM\d+/i.test(text) && /Monto:\s*\$/i.test(text)) {
     console.log("✅ Detectado Comprobante de Transferencia en JEP Móvil");
 
     // 🔹 Capturar número de comprobante (Ej: No.JM2025ENE00177822694)
-    const comprobanteRegex = /No\.(JM\d+\w+)/i;
+    const comprobanteRegex = /No\.?\s*JM(\d{4}[A-Z]{3}\d+)/i;
     const montoRegex = /Valor debitado:\s*\$?\s*([\d,\.]+)/i;
     const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
 
