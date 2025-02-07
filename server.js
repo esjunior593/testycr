@@ -210,8 +210,8 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         console.log("❌ No se detectó un número de transacción válido.");
     }
 }
-// 🔹 JEP MÓVIL - TRANSFERENCIA
-else if (/JEP\s*M[oó0]vil/i.test(text) && /No\.JM\d+/i.test(text) && /Monto:\s*\$/i.test(text)) {
+// 🔹 JEP MÓVIL - TRANSFERENCIA (Basado en "No.JM")
+else if (/No\.JM\d+/i.test(text) && /Monto:\s*\$/i.test(text)) {
     banco = "JEP MÓVIL - TRANSFERENCIA";
 
     console.log("✅ Detectado Comprobante de Transferencia en JEP Móvil");
