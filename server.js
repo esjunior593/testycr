@@ -12,22 +12,34 @@ app.use(express.json());
 app.use(cors());
 
 // Conexión a MySQL usando variables de entorno
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
     database: process.env.MYSQL_DATABASE,
-    port: process.env.MYSQL_PORT || 3306
+    port: process.env.MYSQL_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect(err => {
-    if (err) {
-        console.error('Error de conexión a MySQL:', err);
-        return;
-    }
-    console.log('✅ Conectado a MySQL');
-});
-
+// **No necesitas hacer `db.connect()`, el pool maneja las conexiones automáticamente**
+setInterval(() => {
+    db.getConnection((err, connection) => {
+        if (err) {
+            console.error("❌ Error obteniendo conexión de MySQL:", err);
+            return;
+        }
+        connection.ping((err) => {
+            if (err) {
+                console.error("❌ Error en el ping de MySQL:", err);
+            } else {
+                console.log("✅ Conexión con MySQL sigue activa");
+            }
+            connection.release(); // **Liberar la conexión después del ping**
+        });
+    });
+}, 300000); // Cada 5 minutos
 
 
 function extraerDatosOCR(text) {
