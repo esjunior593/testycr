@@ -105,29 +105,27 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-    // 🔹 JEP MÓVIL - TRANSFERENCIA (Basado en "No.JM")
-else if (/No\.JM\d+/i.test(text) && /Monto:\s*\$/i.test(text)) {
+    // 🔹 JEP MÓVIL - TRANSFERENCIA (Detectado antes que depósitos JEP)
+if (/No\.JM\d+/i.test(text) && /Monto:\s*\$/i.test(text)) {
     banco = "JEP MÓVIL - TRANSFERENCIA";
 
     console.log("✅ Detectado Comprobante de Transferencia en JEP Móvil");
 
     // 🔹 Capturar número de comprobante (Ej: No.JM2025ENE00177822694)
-    const comprobanteRegex = /No\.JM(\w+)/i;
+    const comprobanteRegex = /No\.(JM\d+\w+)/i;
     const montoRegex = /Valor debitado:\s*\$?\s*([\d,\.]+)/i;
     const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
 
     console.log("🔍 Texto OCR recibido:", text);
 
-    // 🔹 Extraer número de comprobante
     let matchNumero = text.match(comprobanteRegex);
     if (matchNumero) {
-        numero = matchNumero[1].trim();
+        numero = matchNumero[1].trim(); // 📌 Se extrae JM2025ENE00177822694 sin cambios
         console.log("📌 Número de comprobante extraído:", numero);
     } else {
         console.log("🚨 No se encontró el número de comprobante");
     }
 
-    // 🔹 Extraer monto
     let matchMonto = text.match(montoRegex);
     if (matchMonto) {
         monto = matchMonto[1].replace(",", ".");
@@ -136,7 +134,6 @@ else if (/No\.JM\d+/i.test(text) && /Monto:\s*\$/i.test(text)) {
         console.log("🚨 No se encontró el monto");
     }
 
-    // 🔹 Extraer y formatear fecha correctamente
     let matchFecha = text.match(fechaRegex);
     if (matchFecha) {
         fecha = moment(`${matchFecha[1]} ${matchFecha[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
@@ -145,7 +142,10 @@ else if (/No\.JM\d+/i.test(text) && /Monto:\s*\$/i.test(text)) {
         fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
     }
+
+    return { numero, nombres, monto, fecha, banco };
 }
+
 //DEPOSITOS JEP
     else if (/JUVENTUD ECUATORIANA PROGRESISTA/i.test(text) || /JEP/i.test(text)) {
         banco = "COOPERATIVA JEP";
