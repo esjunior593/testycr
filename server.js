@@ -210,7 +210,46 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         console.log("❌ No se detectó un número de transacción válido.");
     }
 }
-    
+else if (/JEP Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text)) {
+    banco = "JEP MÓVIL - TRANSFERENCIA";
+
+    console.log("✅ Detectado Comprobante de Transferencia en JEP Móvil");
+
+    const comprobanteRegex = /No\.([A-Z0-9]+)/i;  // Número de comprobante
+    const montoRegex = /Valor debitado:\s*\$?([\d,\.]+)/i;  // Monto
+    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;  // Fecha y hora
+
+    // 🔍 LOG de texto OCR recibido
+    console.log("🔍 Texto OCR recibido:", text);
+
+    // 🔹 Extraer número de comprobante
+    let matchNumero = text.match(comprobanteRegex);
+    if (matchNumero) {
+        numero = matchNumero[1].trim();
+        console.log("📌 Número de comprobante extraído:", numero);
+    } else {
+        console.log("🚨 No se encontró el número de comprobante");
+    }
+
+    // 🔹 Extraer monto
+    let matchMonto = text.match(montoRegex);
+    if (matchMonto) {
+        monto = matchMonto[1].replace(",", ".");
+        console.log("📌 Monto extraído:", monto);
+    } else {
+        console.log("🚨 No se encontró el monto");
+    }
+
+    // 🔹 Extraer y formatear fecha correctamente
+    let matchFecha = text.match(fechaRegex);
+    if (matchFecha) {
+        fecha = moment(`${matchFecha[1]} ${matchFecha[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
+        console.log("📌 Fecha extraída:", fecha);
+    } else {
+        fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
+    }
+}
 else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
     banco = "BANCO DEL AUSTRO";
     console.log("✅ Detectado Banco del Austro");
@@ -257,8 +296,6 @@ else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
 
     return { numero, nombres, monto, fecha, banco };
 }
-
-
 
 
 
