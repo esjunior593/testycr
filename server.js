@@ -210,14 +210,14 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         console.log("❌ No se detectó un número de transacción válido.");
     }
 }
-else if (/JEP Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text)) {
+else if (/JEP\s*Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text)) {
     banco = "JEP MÓVIL - TRANSFERENCIA";
 
     console.log("✅ Detectado Comprobante de Transferencia en JEP Móvil");
 
-    const comprobanteRegex = /No\.([A-Z0-9]+)/i;  // Captura "No.JM2025ENE00177822694"
-    const montoRegex = /Valor debitado:\s*\$?([\d,\.]+)/i;  // Captura el monto "3.50"
-    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;  // Captura fecha y hora
+    const comprobanteRegex = /No\.\s*([A-Z0-9]+)/i;  // Detecta "No.JM2025ENE00177822694"
+    const montoRegex = /Valor debitado:\s*\$?([\d,\.]+)/i;  // Detecta monto "3.50"
+    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;  // Captura fecha "18/01/2025 16:28:16"
 
     console.log("🔍 Texto OCR recibido:", text);  // Depuración del texto OCR
 
@@ -249,6 +249,7 @@ else if (/JEP Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text))
         console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
     }
 }
+
 
 else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
     banco = "BANCO DEL AUSTRO";
