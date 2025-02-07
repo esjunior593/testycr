@@ -215,12 +215,11 @@ else if (/JEP Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text))
 
     console.log("✅ Detectado Comprobante de Transferencia en JEP Móvil");
 
-    const comprobanteRegex = /No\.([A-Z0-9]+)/i;  // Número de comprobante
-    const montoRegex = /Valor debitado:\s*\$?([\d,\.]+)/i;  // Monto
-    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;  // Fecha y hora
+    const comprobanteRegex = /No\.([A-Z0-9]+)/i;  // Captura "No.JM2025ENE00177822694"
+    const montoRegex = /Valor debitado:\s*\$?([\d,\.]+)/i;  // Captura el monto "3.50"
+    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;  // Captura fecha y hora
 
-    // 🔍 LOG de texto OCR recibido
-    console.log("🔍 Texto OCR recibido:", text);
+    console.log("🔍 Texto OCR recibido:", text);  // Depuración del texto OCR
 
     // 🔹 Extraer número de comprobante
     let matchNumero = text.match(comprobanteRegex);
@@ -250,6 +249,7 @@ else if (/JEP Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text))
         console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
     }
 }
+
 else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
     banco = "BANCO DEL AUSTRO";
     console.log("✅ Detectado Banco del Austro");
