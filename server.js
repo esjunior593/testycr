@@ -263,7 +263,39 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
 }
 
 
- 
+ // 🔹 NUEVO COMPROBANTE DE TRANSFERENCIA - BANCO DEL PACÍFICO
+else if (/Banco del Pac[ií]fico/i.test(text) && /Transferencias internas/i.test(text) && /Intermático/i.test(text)) {
+    console.log("📌 Detectado NUEVA TRANSFERENCIA - BANCO DEL PACÍFICO");
+
+    banco = "TRANSFERENCIA - BANCO DEL PACÍFICO (INTERMÁTICO)";
+
+    // Expresiones regulares para extraer datos
+    const fechaHoraRegex = /Intermático - Fecha - (\d{4}-\d{2}-\d{2}) - Hora (\d{2}:\d{2}:\d{2})/i;
+    const montoRegex = /VALOR\s+([\d,\.]+)/i;
+    const nombresRegex = /A NOMBRE DE\s+([A-Za-z\s]+)/i;
+
+    // 📌 Extraer y almacenar fecha y hora en el "número de documento"
+    let matchFechaHora = text.match(fechaHoraRegex);
+    numero = matchFechaHora ? `${matchFechaHora[1]} ${matchFechaHora[2]}` : "-";
+
+    // 📌 Extraer monto
+    let matchMonto = text.match(montoRegex);
+    monto = matchMonto ? matchMonto[1].replace(",", ".") : "-";
+
+    // 📌 Extraer nombres
+    let matchNombres = text.match(nombresRegex);
+    nombres = matchNombres ? matchNombres[1].trim() : "-";
+
+    // 📌 Formatear fecha correctamente
+    if (matchFechaHora) {
+        fecha = moment(`${matchFechaHora[1]} ${matchFechaHora[2]}`, "YYYY-MM-DD HH:mm:ss").format("DD MMM. YYYY HH:mm");
+    } else {
+        fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    }
+
+    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
+}
+
 
 else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
     banco = "BANCO DEL AUSTRO";
