@@ -50,44 +50,41 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     } 
-    else if (text.includes("BANCO PICHINCHA") && text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS")) {
+    else if (text.includes("RUC CNB") || (text.includes("DEPÓSITO") && text.includes("CUENTA DE AHORROS"))) {
         console.log("📌 Detectado DEPÓSITO - BANCO PICHINCHA");
         banco = "DEPÓSITO - BANCO PICHINCHA";
     
         // 🛠 Expresiones Regulares Mejoradas
-        const comprobanteRegex = /Documento\.*:\s*(\d+)/i;  // Extrae el número de documento
-        const nombresRegex = /Nombre\.*:\s*([A-Za-z\s]+)/i; // Extrae el nombre correctamente
-        const montoRegex = /Efectivo\.*:\s*\$?\s*(\d+[\.,]?\d{0,2})/i; // Extrae el monto con mejor precisión
-        const fechaRegex = /Fecha\.*:\s*(\d{4})\/([a-zA-Z]+)\/(\d{2})\s*(\d{2}:\d{2})/i; // Extrae la fecha con formato correcto
+        const comprobanteRegex = /Documento\.*:\s*(\d+)/i; 
+        const nombresRegex = /Nombre CNB\.*:\s*([\w\s]+)/i;
+        const montoRegex = /Efectivo\.*:\s*\$?\s*([\d,\.]+)/i;
+        const fechaRegex = /Fecha\.*:\s*(\d{4})\/([a-zA-Z]+)\/(\d{2})\s+(\d{2}:\d{2})/i;
     
-        // 📌 Extraer número de documento correctamente
-        let matchNumero = text.match(comprobanteRegex);
-        numero = matchNumero ? matchNumero[1].trim() : "-";
-        console.log("📌 Número de documento extraído:", numero);
+        // 📌 Extraer número de comprobante correctamente desde "Documento.: 270297"
+        const numeroMatch = text.match(comprobanteRegex);
+        numero = numeroMatch ? numeroMatch[1] : "-";
     
         // 📌 Extraer nombre correcto sin "RUC CNB"
-        let matchNombres = text.match(nombresRegex);
-        nombres = matchNombres ? matchNombres[1].trim() : "-";
-        console.log("📌 Nombre extraído:", nombres);
+        const nombresMatch = text.match(nombresRegex);
+        nombres = nombresMatch ? nombresMatch[1].trim() : "-";
     
         // 📌 Extraer monto correctamente
-        let matchMonto = text.match(montoRegex);
-        monto = matchMonto ? matchMonto[1].replace(",", ".") : "-";
-        console.log("📌 Monto extraído:", monto);
+        const montoMatch = text.match(montoRegex);
+        monto = montoMatch ? montoMatch[1] : "-";
     
         // 📌 Extraer fecha correctamente y formatearla
-        let matchFecha = text.match(fechaRegex);
-        if (matchFecha) {
-            const meses = {
+        if (text.match(fechaRegex)) {
+            const fechaMatch = text.match(fechaRegex);
+            const mesEnEspanol = {
                 "ene": "Enero", "feb": "Febrero", "mar": "Marzo", "abr": "Abril",
                 "may": "Mayo", "jun": "Junio", "jul": "Julio", "ago": "Agosto",
                 "sep": "Septiembre", "oct": "Octubre", "nov": "Noviembre", "dic": "Diciembre"
             };
-            fecha = `${matchFecha[3]} ${meses[matchFecha[2].toLowerCase()] || matchFecha[2]} ${matchFecha[1]} ${matchFecha[4]}`;
+            const mes = fechaMatch[2].toLowerCase();
+            fecha = `${fechaMatch[3]} ${mesEnEspanol[mes] || mes} ${fechaMatch[1]} ${fechaMatch[4]}`;
         } else {
             fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         }
-        console.log("📌 Fecha extraída:", fecha);
     
         console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
     }
