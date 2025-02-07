@@ -215,16 +215,17 @@ else if (/JEP\s*Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text
 
     console.log("✅ Detectado Comprobante de Transferencia en JEP Móvil");
 
-    const comprobanteRegex = /No\.\s*([A-Z0-9]+)/i;  // Detecta "No.JM2025ENE00177822694"
-    const montoRegex = /Valor debitado:\s*\$?([\d,\.]+)/i;  // Detecta monto "3.50"
-    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;  // Captura fecha "18/01/2025 16:28:16"
+    // 🔹 Capturar número de comprobante aunque esté pegado (Ej: No.JM2025ENE00177822694)
+    const comprobanteRegex = /No\.*([A-Z0-9]+)/i;  
+    const montoRegex = /Valor debitado:\s*\$?([\d,\.]+)/i;  
+    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;  
 
-    console.log("🔍 Texto OCR recibido:", text);  // Depuración del texto OCR
+    console.log("🔍 Texto OCR recibido:", text);
 
-    // 🔹 Extraer número de comprobante
+    // 🔹 Extraer número de comprobante, eliminando "No." si está pegado
     let matchNumero = text.match(comprobanteRegex);
     if (matchNumero) {
-        numero = matchNumero[1].trim();
+        numero = matchNumero[1].replace("No.", "").trim();
         console.log("📌 Número de comprobante extraído:", numero);
     } else {
         console.log("🚨 No se encontró el número de comprobante");
@@ -249,6 +250,7 @@ else if (/JEP\s*Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text
         console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
     }
 }
+
 
 
 else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
