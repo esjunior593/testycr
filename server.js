@@ -468,10 +468,7 @@ app.post('/comprobantes', (req, res) => {
             // Obtener los últimos 5 dígitos del número de WhatsApp y formatearlo como "09XXX*****"
             const numeroOculto = `09XXX${results[0].whatsapp.slice(-5)}`;
         
-            const resumen = `📌 **Número:** ${results[0].numero}
-        \n📞 **Enviado desde:** ${numeroOculto}
-        \n📅 **Fecha de envío:** ${results[0].fecha}
-        \n💰 **Monto:** $${monto}`;
+            const resumen = `📌 **Número:** ${results[0].numero}\n📞 **Enviado desde:** ${numeroOculto}\n📅 **Fecha de envío:** ${results[0].fecha}\n💰 **Monto:** $${monto}`;
         
             return res.status(200).json({
                 message: `🚫 Este comprobante ya ha sido presentado por el número ${numeroOculto}.`,
