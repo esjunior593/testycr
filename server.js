@@ -60,9 +60,13 @@ function extraerDatosOCR(text) {
         const montoRegex = /Efectivo\.*[:;]\s*\$?\s*([\d,\.]+)/i;
         const fechaRegex = /Fecha\.*[:;]\s*(\d{4})\/([a-zA-Z]+)\/(\d{2})\s+(\d{2}:\d{2})/i;
     
-        // 📌 Extraer número de comprobante correctamente desde "Documento.: 270297"
+        // 📌 Extraer número de comprobante correctamente desde "Documento.: 007645"
         const numeroMatch = text.match(comprobanteRegex);
-        numero = numeroMatch ? numeroMatch[1].trim() : "-";
+        if (numeroMatch) {
+            numero = numeroMatch[1].trim().padStart(6, '0');  // Asegurar que mantiene los ceros
+        } else {
+            numero = "-";
+        }
     
         // 📌 Extraer nombre correcto sin "RUC CNB"
         const nombresMatch = text.match(nombresRegex);
@@ -87,6 +91,7 @@ function extraerDatosOCR(text) {
     
         console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
     }
+    
     
     
     // Banco de Loja
