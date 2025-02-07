@@ -210,7 +210,7 @@ else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/
         console.log("❌ No se detectó un número de transacción válido.");
     }
 }
-else if (/JEP\s*Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text)) {
+else if ((/JEP\s*M[oó0]vil/i.test(text) || /JEPMóvil/i.test(text)) && /COMPROBANTE\s*DE\s*TRANSFERENCIA/i.test(text)) {
     banco = "JEP MÓVIL - TRANSFERENCIA";
 
     console.log("✅ Detectado Comprobante de Transferencia en JEP Móvil");
@@ -250,6 +250,7 @@ else if (/JEP\s*Móvil/i.test(text) && /COMPROBANTE DE TRANSFERENCIA/i.test(text
         console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
     }
 }
+
 
 
 
