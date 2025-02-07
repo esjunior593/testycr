@@ -31,29 +31,30 @@ db.connect(err => {
 
 
 function extraerDatosOCR(text) {
-    let numero = "-", nombres = "-", monto = "-", fecha = "-", banco = "DESCONOCIDO";
+     // Inicializar todas las variables
+     let numero = "-", nombres = "-", monto = "-", fecha = "-", banco = "DESCONOCIDO";
 
-console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
-
-// **🔴 Verificar si el texto NO parece ser un comprobante de pago**
-const palabrasClave = [
-    "banco", "transferencia", "no.", "valor debitado", "comisión", "fecha",
-    "monto", "depósito", "referencia", "ha enviado $", "número de comprobante",
-    "cuenta", "institución financiera", "pago recibido", "transacción"
-];
-
-// **Convertimos todo el texto a minúsculas para evitar errores de comparación**
-let textoMinuscula = text ? text.toLowerCase() : ""; 
-let esComprobante = palabrasClave.some(palabra => textoMinuscula.includes(palabra));
-
-// **Si no contiene ninguna palabra clave, asumimos que NO es un comprobante**
-if (!esComprobante) {
-    console.log("🚫 No se detectó un comprobante de pago en la imagen.");
-    return {
-        message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
-        resumen: "👉 *Soporte:* 0980757208 👈"
-    };
-}
+     console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
+ 
+     // **🔴 Verificar si el texto NO parece ser un comprobante de pago**
+     const palabrasClave = [
+         "banco", "transferencia", "no.", "valor debitado", "comisión", "fecha",
+         "monto", "depósito", "referencia", "ha enviado $", "número de comprobante",
+         "cuenta", "institución financiera", "pago recibido", "transacción"
+     ];
+ 
+     // Convertimos todo el texto a minúsculas para evitar errores de comparación
+     let textoMinuscula = text ? text.toLowerCase() : ""; 
+     let esComprobante = palabrasClave.some(palabra => textoMinuscula.includes(palabra));
+ 
+     // **Si el texto no parece ser un comprobante, retorna el mensaje de soporte**
+     if (!esComprobante) {
+         console.log("🚫 No se detectó un comprobante de pago en la imagen.");
+         return {
+             message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
+             resumen: "👉 *Soporte:* 0980757208 👈"
+         };
+     }
 
 
 
@@ -364,20 +365,18 @@ else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
 
     console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
 
-    return { numero, nombres, monto, fecha, banco };
-}
+     // **Si se detectó un número de comprobante, se retorna como válido**
+     if (numero !== "-") {
+        return { numero, nombres, monto, fecha, banco };
+    }
 
-// **🔹 Si se detecta un número de comprobante, se considera válido y se envía a la BD**
-if (numero !== "-") {
-    return { numero, nombres, monto, fecha, banco };
+    // **Si no se detecta un número de comprobante, retorna mensaje de soporte**
+    console.log("🚫 No se detectó un comprobante de pago.");
+    return {
+        message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
+        resumen: "👉 *Soporte:* 0980757208 👈"
+    };
 }
-
-// **🔴 Si no se detecta un comprobante válido, enviar el mensaje de soporte**
-console.log("🚫 No se detectó un comprobante de pago.");
-return {
-    message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
-    resumen: "👉 *Soporte:* 0980757208 👈"
-};
 
 
 
