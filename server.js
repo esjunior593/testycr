@@ -106,39 +106,46 @@ function extraerDatosOCR(text) {
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
     // 🔹 JEP MÓVIL - TRANSFERENCIA
-else if (/No\.\s*JM\d{4}[A-Z]{3}\d{6,}/i.test(text) && /Transferencia Enviada/i.test(text)) {
+// 🔹 JEP Móvil - Transferencias
+else if (/Transferencia Enviada/i.test(text) && /No\.?\s*JM\d{4}[A-Z]{3}\d{6,}/i.test(text)) {
     banco = "JEP MÓVIL - TRANSFERENCIA";
 
-    console.log("✅ Detectado comprobante de transferencia JEP Móvil");
+    console.log("✅ Detectado comprobante de transferencia en JEP Móvil");
 
-    const comprobanteRegex = /No\.\s*(JM\d{4}[A-Z]{3}\d{6,})/i;
+    const comprobanteRegex = /No\.?\s*JM(\d{4}[A-Z]{3}\d{6,})/i; // Extraer el número de JM
     const montoRegex = /Monto:\s*\$?([\d,\.]+)/i;
-    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
+    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})?/i;
 
     // Extraer número de comprobante
     let matchNumero = text.match(comprobanteRegex);
     if (matchNumero) {
-        numero = matchNumero[1].trim();
-        console.log("📌 Número de comprobante extraído:", numero);
+        numero = `JM${matchNumero[1].trim()}`;
+        console.log("📌 Número de transacción extraído:", numero);
     } else {
-        console.log("🚨 No se encontró el número de comprobante");
+        console.log("🚨 No se encontró el número de transacción");
     }
 
     // Extraer monto
     let matchMonto = text.match(montoRegex);
-    monto = matchMonto ? matchMonto[1].replace(",", ".") : "-";
-    console.log("📌 Monto extraído:", monto);
+    if (matchMonto) {
+        monto = matchMonto[1].trim().replace(",", ".");
+        console.log("📌 Monto extraído:", monto);
+    } else {
+        console.log("🚨 No se encontró el monto");
+    }
 
-    // Extraer y formatear fecha
+    // Extraer fecha
     let matchFecha = text.match(fechaRegex);
     if (matchFecha) {
-        fecha = moment(`${matchFecha[1]} ${matchFecha[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
+        fecha = moment(`${matchFecha[1]} ${matchFecha[2] || "00:00:00"}`, "DD/MM/YYYY HH:mm:ss")
+            .format("DD MMM. YYYY HH:mm");
         console.log("📌 Fecha extraída:", fecha);
     } else {
         fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
         console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
     }
 }
+
 
 
 
