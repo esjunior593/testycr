@@ -33,24 +33,27 @@ db.connect(err => {
 function extraerDatosOCR(text) {
     let numero = "-", nombres = "-", monto = "-", fecha = "-", banco = "DESCONOCIDO";
 
-    console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
+console.log("Texto OCR extraído:", text); // Depuración para ver el texto sin procesar
 
-     // **🔴 Verificar si el texto NO parece ser un comprobante de pago**
-     const palabrasClave = [
-        "Banco", "Transferencia", "No.", "Valor debitado", "Comisión", "Fecha",
-        "Monto", "Depósito", "Referencia", "ha enviado $", "Número de comprobante",
-        "Cuenta", "Institución financiera", "Pago recibido"
-    ];
+// **🔴 Verificar si el texto NO parece ser un comprobante de pago**
+const palabrasClave = [
+    "banco", "transferencia", "no.", "valor debitado", "comisión", "fecha",
+    "monto", "depósito", "referencia", "ha enviado $", "número de comprobante",
+    "cuenta", "institución financiera", "pago recibido", "transacción"
+];
 
-    let esComprobante = palabrasClave.some(palabra => text.toLowerCase().includes(palabra.toLowerCase()));
+// **Convertimos todo el texto a minúsculas para evitar errores de comparación**
+let textoMinuscula = text ? text.toLowerCase() : ""; 
+let esComprobante = palabrasClave.some(palabra => textoMinuscula.includes(palabra));
 
-    if (!esComprobante) {
-        console.log("🚫 No se detectó un comprobante de pago en la imagen.");
-        return {
-            message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
-            resumen: "👉 *Soporte:* 0980757208 👈"
-        };
-    }
+// **Si no contiene ninguna palabra clave, asumimos que NO es un comprobante**
+if (!esComprobante) {
+    console.log("🚫 No se detectó un comprobante de pago en la imagen.");
+    return {
+        message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
+        resumen: "👉 *Soporte:* 0980757208 👈"
+    };
+}
 
 
 
