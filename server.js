@@ -107,7 +107,7 @@ function extraerDatosOCR(text) {
     }
     // 🔹 JEP MÓVIL - TRANSFERENCIA
 // 🔹 JEP Móvil - Transferencias
-else if (/Transferencia Enviada/i.test(text) && /No\.?\s*JM\d{4}[A-Z]{3}\d{6,}/i.test(text)) {
+else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No\.?\s*JM\d{4}[A-Z]{3}\d{6,}/i.test(text)) {
     banco = "JEP MÓVIL - TRANSFERENCIA";
 
     console.log("✅ Detectado comprobante de transferencia en JEP Móvil");
