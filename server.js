@@ -105,40 +105,41 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-    else if (/JEP M[oó0]vil/i.test(text) && /Transferencia Enviada/i.test(text)) {
-        banco = "JEP MÓVIL - TRANSFERENCIA";
-    
-        const comprobanteRegex = /No\.\s*JM(\d{4}[A-Z]{3}\d{6,})/i;
-        const montoRegex = /Monto:\s*\$?([\d,\.]+)/i;
-        const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
-    
-        console.log("🔍 Analizando texto OCR para JEP Móvil...");
-    
-        // Extraer número de comprobante
-        let matchNumero = text.match(comprobanteRegex);
-        if (matchNumero) {
-            numero = `JM${matchNumero[1]}`;
-            console.log("📌 Número de comprobante extraído:", numero);
-        } else {
-            console.log("🚨 No se encontró el número de comprobante");
-        }
-    
-        // Extraer monto
-        let matchMonto = text.match(montoRegex);
-        monto = matchMonto ? matchMonto[1].replace(",", ".") : "-";
-        console.log("📌 Monto extraído:", monto);
-    
-        // Extraer y formatear fecha
-        let matchFecha = text.match(fechaRegex);
-        if (matchFecha) {
-            fecha = moment(`${matchFecha[1]} ${matchFecha[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
-            console.log("📌 Fecha extraída:", fecha);
-        } else {
-            fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
-            console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
-        }
+    // 🔹 JEP MÓVIL TRANSFERENCIA
+else if (/JEP M[oó0]vil/i.test(text) && /Transferencia Enviada/i.test(text)) {
+    banco = "JEP MÓVIL - TRANSFERENCIA";
+
+    const comprobanteRegex = /No\.\s*JM(\d{4}[A-Z]{3}\d{6,})/i;
+    const montoRegex = /Monto:\s*\$?([\d,\.]+)/i;
+    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
+
+    console.log("🔍 Analizando texto OCR para JEP Móvil...");
+
+    // Extraer número de comprobante
+    let matchNumero = text.match(comprobanteRegex);
+    if (matchNumero) {
+        numero = `JM${matchNumero[1]}`;
+        console.log("📌 Número de comprobante extraído:", numero);
+    } else {
+        console.log("🚨 No se encontró el número de comprobante");
     }
-    
+
+    // Extraer monto
+    let matchMonto = text.match(montoRegex);
+    monto = matchMonto ? matchMonto[1].replace(",", ".") : "-";
+    console.log("📌 Monto extraído:", monto);
+
+    // Extraer y formatear fecha
+    let matchFecha = text.match(fechaRegex);
+    if (matchFecha) {
+        fecha = moment(`${matchFecha[1]} ${matchFecha[2]}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
+        console.log("📌 Fecha extraída:", fecha);
+    } else {
+        fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+        console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
+    }
+}
+
 
 //DEPOSITOS JEP
     else if (/JUVENTUD ECUATORIANA PROGRESISTA/i.test(text) || /JEP/i.test(text)) {
