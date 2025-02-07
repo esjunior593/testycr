@@ -105,20 +105,20 @@ function extraerDatosOCR(text) {
             ? moment(text.match(fechaRegex)[1], "DD/MM/YYYY").format("DD MMM. YYYY") 
             : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
     }
-    // 🔹 JEP MÓVIL TRANSFERENCIA
-else if (/JEP M[oó0]vil/i.test(text) && /Transferencia Enviada/i.test(text)) {
+    // 🔹 JEP MÓVIL - TRANSFERENCIA
+else if (/No\.\s*JM\d{4}[A-Z]{3}\d{6,}/i.test(text) && /Transferencia Enviada/i.test(text)) {
     banco = "JEP MÓVIL - TRANSFERENCIA";
 
-    const comprobanteRegex = /No\.\s*JM(\d{4}[A-Z]{3}\d{6,})/i;
+    console.log("✅ Detectado comprobante de transferencia JEP Móvil");
+
+    const comprobanteRegex = /No\.\s*(JM\d{4}[A-Z]{3}\d{6,})/i;
     const montoRegex = /Monto:\s*\$?([\d,\.]+)/i;
     const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4})\s*(\d{2}:\d{2}:\d{2})/i;
-
-    console.log("🔍 Analizando texto OCR para JEP Móvil...");
 
     // Extraer número de comprobante
     let matchNumero = text.match(comprobanteRegex);
     if (matchNumero) {
-        numero = `JM${matchNumero[1]}`;
+        numero = matchNumero[1].trim();
         console.log("📌 Número de comprobante extraído:", numero);
     } else {
         console.log("🚨 No se encontró el número de comprobante");
@@ -139,6 +139,7 @@ else if (/JEP M[oó0]vil/i.test(text) && /Transferencia Enviada/i.test(text)) {
         console.log("🚨 No se encontró la fecha, usando fecha actual:", fecha);
     }
 }
+
 
 
 //DEPOSITOS JEP
