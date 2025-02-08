@@ -450,22 +450,28 @@ app.post('/comprobantes', (req, res) => {
 
     // Si la imagen no es un comprobante, retorna el mensaje y evita la inserción
     if (datosExtraidos.message) {
-        return res.status(200).json({ 
-            message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.", 
-            resumen: "👉 *Soporte:* 0980757208 👈"
-        });
+        return res.status(200).json(datosExtraidos); 
     }
 
     let { numero, nombres, monto, fecha, banco } = datosExtraidos;
 
     console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp, banco });
 
-    // **NUEVO:** Si el banco se detectó, pero el número de documento no, se envía mensaje de espera
+    // **NUEVO: Si detecta banco pero no número de documento, muestra mensaje de espera**
     if (banco && (!numero || numero === "-")) {
         console.log("📌 Número de documento no detectado, en espera de verificación.");
         return res.status(200).json({
             message: "⌛ Estamos verificando su pago. Por favor, espere unos momentos.",
             resumen: "📌 Si el comprobante es válido, será procesado automáticamente."
+        });
+    }
+
+    // **Si el comprobante no tiene banco y tampoco número, lo manda a soporte**
+    if ((!banco || banco === "DESCONOCIDO") && (!numero || numero === "-")) {
+        console.log("🚫 No se detectó un comprobante de pago.");
+        return res.status(200).json({
+            message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
+            resumen: "👉 *Soporte:* 0980757208 👈"
         });
     }
 
@@ -511,6 +517,7 @@ app.post('/comprobantes', (req, res) => {
             });
     });
 });
+
 
 
 
