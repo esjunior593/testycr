@@ -457,7 +457,7 @@ app.post('/comprobantes', (req, res) => {
 
     console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp, banco });
 
-    // **NUEVO: Si detecta banco pero no número de documento, muestra mensaje de espera**
+    // 🔹 Si detecta banco pero no número de documento, muestra mensaje de espera
     if (banco && (!numero || numero === "-")) {
         console.log("📌 Número de documento no detectado, en espera de verificación.");
         return res.status(200).json({
@@ -466,7 +466,7 @@ app.post('/comprobantes', (req, res) => {
         });
     }
 
-    // **Si el comprobante no tiene banco y tampoco número, lo manda a soporte**
+    // 🔹 Si NO detecta ni banco ni número, envía el mensaje de soporte
     if ((!banco || banco === "DESCONOCIDO") && (!numero || numero === "-")) {
         console.log("🚫 No se detectó un comprobante de pago.");
         return res.status(200).json({
@@ -475,7 +475,7 @@ app.post('/comprobantes', (req, res) => {
         });
     }
 
-    // Verificar si el comprobante ya existe en MySQL
+    // 🔹 Verificar si el comprobante ya existe en MySQL
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
         if (err) {
             console.error("❌ Error en SELECT:", err);
@@ -499,7 +499,7 @@ app.post('/comprobantes', (req, res) => {
             });
         }
         
-        // Insertar en MySQL con los datos extraídos
+        // 🔹 Insertar en MySQL si tiene número de comprobante
         db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp, monto) VALUES (?, ?, ?, ?, ?, ?)',
             [numero, nombres || "Desconocido", "Pago recibido", fecha, whatsapp, monto], (err) => {
                 if (err) {
