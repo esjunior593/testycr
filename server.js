@@ -291,42 +291,35 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
 
     
     // 🔹 Banco del Pacífico (Depósito)
-else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
-    console.log("✅ Se detectó un comprobante de Banco del Pacífico.");
-    banco = "BANCO DEL PACÍFICO";
+else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text) && /Depósitos/i.test(text)) {
+    console.log("✅ Se detectó un comprobante de DEPÓSITO en Banco del Pacífico.");
+    banco = "DEPÓSITO - BANCO DEL PACÍFICO";
 
-    // 🔹 Mejor regex
-    const numeroRegex = /Transacci[oó]n\s+(\d+)/i;
-    const montoRegex = /Valor:\s*\$?\s*(\d+)/i; // Captura números sin punto decimal
+    // 🔹 Expresiones Regulares Mejoradas
+    const numeroRegex = /Transacci[oó]n:\s*(\d+)/i; // Extrae "Transacción: 983486"
+    const nombresRegex = /Nombre:\s*([A-Za-z\s]+)/i; // Extrae el nombre del depositante
+    const montoRegex = /Valor:\s*([\d,\.]+)/i; // Extrae el monto "3.50"
+    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4}|\d{2}-\d{2}-\d{4})/i; // Extrae "27/01/2025"
 
+    // 📌 Extraer número de transacción correctamente
     let matchNumero = text.match(numeroRegex);
-    let matchMonto = text.match(montoRegex);
-
     numero = matchNumero ? matchNumero[1].trim() : "-";
+
+    // 📌 Extraer nombres
+    let matchNombres = text.match(nombresRegex);
+    nombres = matchNombres ? matchNombres[1].trim() : "-";
+
+    // 📌 Extraer monto
+    let matchMonto = text.match(montoRegex);
     monto = matchMonto ? matchMonto[1].trim() : "-";
 
-    // 🔹 Aplicar corrección solo si es Banco del Pacífico
-    if (monto !== "-" && !monto.includes(".") && parseInt(monto) > 99) {
-        monto = (parseInt(monto) / 100).toFixed(2); // Convierte "350" a "3.50"
-        console.log("⚠️ Monto corregido para Banco del Pacífico:", monto);
-    }
+    // 📌 Extraer y formatear fecha correctamente
+    let matchFecha = text.match(fechaRegex);
+    fecha = matchFecha ? moment(matchFecha[1], ["DD/MM/YYYY", "DD-MM-YYYY"]).format("DD MMM. YYYY") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
 
-    console.log("📌 Número de transacción detectado:", numero);
-    console.log("💰 Monto detectado después de corrección:", monto);
-
-    if (numero !== "-") {
-        console.log("✅ Comprobante válido, se enviará a la base de datos.");
-        return { 
-            numero, 
-            nombres: "Desconocido", 
-            monto,  
-            fecha: moment().tz("America/Guayaquil").format("DD/MM/YYYY HH:mm:ss"), 
-            banco 
-        };
-    } else {
-        console.log("❌ No se detectó un número de transacción válido.");
-    }
+    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
 }
+
 
 
 
