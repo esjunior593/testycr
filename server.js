@@ -446,11 +446,10 @@ app.post('/comprobantes', (req, res) => {
         });
     }
 
-     
     const datosExtraidos = extraerDatosOCR(text);
 
     // Si la imagen no es un comprobante, retorna el mensaje y evita la inserción
-    if (datosExtraidos.mensaje) {
+    if (datosExtraidos.message) {
         return res.status(200).json({ 
             message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.", 
             resumen: "👉 *Soporte:* 0980757208 👈"
@@ -459,16 +458,16 @@ app.post('/comprobantes', (req, res) => {
 
     let { numero, nombres, monto, fecha, banco } = datosExtraidos;
 
-    // **CORRECCIÓN**: Solo verificar `numero`, no `monto`
-    if (!numero || numero === "-") {
-        console.log("🚫 No se detectó un comprobante de pago.");
+    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp, banco });
+
+    // **NUEVO:** Si el banco se detectó, pero el número de documento no, se envía mensaje de espera
+    if (banco && (!numero || numero === "-")) {
+        console.log("📌 Número de documento no detectado, en espera de verificación.");
         return res.status(200).json({
-            message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
-            resumen: "👉 *Soporte:* 0980757208 👈"
+            message: "⌛ Estamos verificando su pago. Por favor, espere unos momentos.",
+            resumen: "📌 Si el comprobante es válido, será procesado automáticamente."
         });
     }
-
-    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp, banco });
 
     // Verificar si el comprobante ya existe en MySQL
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
@@ -512,6 +511,7 @@ app.post('/comprobantes', (req, res) => {
             });
     });
 });
+
 
 
 
