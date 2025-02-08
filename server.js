@@ -289,36 +289,44 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
     }
     
 
+    //DEPOSITO BANCO DEL PACIFICO
+    else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) {
+        console.log("✅ Se detectó un comprobante de DEPÓSITO en Banco del Pacífico.");
+        banco = "DEPÓSITO - BANCO DEL PACÍFICO";
     
-    // 🔹 Banco del Pacífico (Depósito)
-else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text) && /Depósitos/i.test(text)) {
-    console.log("✅ Se detectó un comprobante de DEPÓSITO en Banco del Pacífico.");
-    banco = "DEPÓSITO - BANCO DEL PACÍFICO";
-
-    // 🔹 Expresiones Regulares Mejoradas
-    const numeroRegex = /Transacci[oó]n:\s*(\d+)/i; // Extrae "Transacción: 983486"
-    const nombresRegex = /Nombre:\s*([A-Za-z\s]+)/i; // Extrae el nombre del depositante
-    const montoRegex = /Valor:\s*([\d,\.]+)/i; // Extrae el monto "3.50"
-    const fechaRegex = /Fecha:\s*(\d{2}\/\d{2}\/\d{4}|\d{2}-\d{2}-\d{4})/i; // Extrae "27/01/2025"
-
-    // 📌 Extraer número de transacción correctamente
-    let matchNumero = text.match(numeroRegex);
-    numero = matchNumero ? matchNumero[1].trim() : "-";
-
-    // 📌 Extraer nombres
-    let matchNombres = text.match(nombresRegex);
-    nombres = matchNombres ? matchNombres[1].trim() : "-";
-
-    // 📌 Extraer monto
-    let matchMonto = text.match(montoRegex);
-    monto = matchMonto ? matchMonto[1].trim() : "-";
-
-    // 📌 Extraer y formatear fecha correctamente
-    let matchFecha = text.match(fechaRegex);
-    fecha = matchFecha ? moment(matchFecha[1], ["DD/MM/YYYY", "DD-MM-YYYY"]).format("DD MMM. YYYY") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
-
-    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
-}
+        // 🔹 Normalizar el texto OCR
+        let textoLimpio = text.toLowerCase()
+            .replace(/\s+/g, ' ')   // Reemplaza múltiples espacios por uno solo
+            .replace(/[^a-z0-9\s:.,-]/gi, '') // Elimina caracteres extraños
+            .replace(/fecha:/i, "\nfecha:") // Asegura que la fecha sea identificable
+    
+        console.log("📜 Texto Normalizado:", textoLimpio);
+    
+        // 🔹 Expresiones Regulares Mejoradas
+        const numeroRegex = /transacci[oó]n[:\s]*([\d]+)/i;
+        const nombresRegex = /nombre[:\s]*([a-z\s]+)/i;
+        const montoRegex = /valor[:\s]*([\d,\.]+)/i;
+        const fechaRegex = /fecha[:\s]*(\d{2}\/\d{2}\/\d{4})/i;
+    
+        // 📌 Extraer número de transacción
+        let matchNumero = textoLimpio.match(numeroRegex);
+        numero = matchNumero ? matchNumero[1].trim() : "-";
+    
+        // 📌 Extraer nombres
+        let matchNombres = textoLimpio.match(nombresRegex);
+        nombres = matchNombres ? matchNombres[1].trim() : "-";
+    
+        // 📌 Extraer monto
+        let matchMonto = textoLimpio.match(montoRegex);
+        monto = matchMonto ? matchMonto[1].trim() : "-";
+    
+        // 📌 Extraer y formatear fecha correctamente
+        let matchFecha = textoLimpio.match(fechaRegex);
+        fecha = matchFecha ? moment(matchFecha[1], "DD/MM/YYYY").format("DD MMM. YYYY") : moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
+    
+        console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
+    }
+    
 
 
 
