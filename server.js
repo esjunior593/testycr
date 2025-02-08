@@ -301,11 +301,11 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
 
     // 🛠 Expresiones regulares mejoradas
     // 🛠 Expresiones regulares mejoradas
-// 🛠 Expresiones regulares mejoradas
-const numeroRegex = /(?:Transacci[oó]n|vacci[oó]n|Transaccl[oó]n|Transaccl[oó]…|Transac[cç]?[ií]?[oó]?n?)\s*[:;]?\s*(\d+)|Tu\s*Banco\s*Ban[cç]o\s*Aq[uíi][\s\S]*?(?:\n\s*)?(\d{6,})/i;
-const secuencialRegex = /(?:Secuencial\s*Tbba|uencial\s*Tbba)\s*[:;]?\s*(\d+)/i;
-const montoRegex = /(?:Valor|oN Uso)\s*[:;]?\s*\$?\s*([\d,\.]+)/i;
-const fechaRegex = /Fecha\s*[:;]?\s*(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}:\d{2})?/i;
+// 🛠 Expresiones regulares mejoradas para errores OCR
+const numeroRegex = /(?:Transacci[oó]n|meaccior|Transaccl[oó]n|Transaccl[oó]…|Transac[cç]?[ií]?[oó]?n?)\s*[:;]?\s*(\d+)|Tu\s*Banco\s*Ban[cç]o\s*Aq[uíi][\s\S]*?(?:\n\s*)?(\d{6,})/i;
+const secuencialRegex = /(?:Secuencial\s*Tbba|uencial\s*Tbba|Secuenc al Tbba)\s*[:;]?\s*(\d+)/i;
+const montoRegex = /(?:Valor|v dor)\s*[:;]?\s*\$?\s*([\d,\.]+)/i;
+const fechaRegex = /(?:Fecha|p)\s*[:;]?\s*(\d{2}\/\d{2}\/\d{4})\s+(\d{2}[:\-]\d{2}[:\-]\d{2})?/i;
 
 // 📌 Extraer número de transacción o secuencial si no encuentra transacción
 let matchNumero = text.match(numeroRegex);
@@ -314,7 +314,7 @@ let matchSecuencial = text.match(secuencialRegex);
 if (matchNumero) {
     numero = matchNumero[1] ? matchNumero[1].trim() : matchNumero[2] ? matchNumero[2].trim() : "-";
 } else if (matchSecuencial) {
-    numero = matchSecuencial[1].trim();
+    numero = matchSecuencial[1] ? matchSecuencial[1].trim() : "-";
 } else {
     numero = "-";
 }
@@ -326,12 +326,14 @@ monto = matchMonto ? matchMonto[1].replace(",", ".") : "-";
 // 📌 Extraer fecha correctamente
 let matchFecha = text.match(fechaRegex);
 if (matchFecha) {
-    fecha = moment(`${matchFecha[1]} ${matchFecha[2] || "00:00:00"}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
+    let hora = matchFecha[2] ? matchFecha[2].replace(/-/g, ":") : "00:00:00";
+    fecha = moment(`${matchFecha[1]} ${hora}`, "DD/MM/YYYY HH:mm:ss").format("DD MMM. YYYY HH:mm");
 } else {
     fecha = moment().tz("America/Guayaquil").format("DD MMM. YYYY HH:mm");
 }
 
 console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
+
 
 
     }
