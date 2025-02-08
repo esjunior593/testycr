@@ -294,7 +294,7 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
     else if (
         (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text)) ||  // Primera condición
         /Secuencial Tbba|Tbba/i.test(text) ||  // Segunda condición (detecta sin necesidad de "Banco del Pacífico")
-        /Tu Banco Aqu[ií]/i.test(text)  // Nueva condición que detecta "Tu Banco Aquí" SIN depender de nada más
+        /Tu\s*Banco(\s*Banco)?/i.test(text)  // Detecta "Tu Banco Aquí" y también "Tu Banco Banco Aquí"
     ) {
     console.log("✅ Detectado DEPÓSITO - BANCO DEL PACÍFICO");
     banco = "DEPÓSITO - BANCO DEL PACÍFICO";
