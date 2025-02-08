@@ -395,18 +395,26 @@ else if (/NO\.\s*COMPROBANTE/i.test(text) || /BANCO DEL AUSTRO/i.test(text)) {
 
     console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
 
-     // **Si se detectó un número de comprobante, se retorna como válido**
-     if (numero !== "-") {
-        return { numero, nombres, monto, fecha, banco };
-    }
+// **Si se detectó un número de comprobante, se retorna como válido**
+if (numero !== "-") {
+    return { numero, nombres, monto, fecha, banco };
+}
 
-    // **Si no se detecta un número de comprobante, retorna mensaje de soporte**
-    console.log("🚫 No se detectó un comprobante de pago.");
+// **Si detectó un banco (sea uno conocido o "DESCONOCIDO") pero no tiene número de documento, mostrar mensaje de espera**
+if (banco && numero === "-") {
+    console.log("⌛ Banco detectado pero sin número de documento. En espera de verificación.");
     return {
-        message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
-        resumen: "👉 *Soporte:* 0980757208 👈"
+        message: "⌛ Estamos verificando su pago. Por favor, espere unos momentos.",
+        resumen: "📌 Si el comprobante es válido, será procesado automáticamente."
     };
 }
+
+// **Si no se detecta un número de comprobante, retorna mensaje de soporte**
+console.log("🚫 No se detectó un comprobante de pago.");
+return {
+    message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
+    resumen: "👉 *Soporte:* 0980757208 👈"
+};
 
 
 
