@@ -301,7 +301,8 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
 
     // 🛠 Expresiones regulares mejoradas
     // 🛠 Expresiones regulares mejoradas
-const numeroRegex = /(?:Transacci[oó]n|Transaccl[oó]n|Transaccl[oó]…|Transac[cç]?[ií]?[oó]?n?)\s*[:;]?\s*(\d+)|Tu\s*Banco\s*Banco\s*Aq[uíi][\s\S]*?(\d{6,})/i;
+// 🛠 Expresiones regulares mejoradas
+const numeroRegex = /(?:Transacci[oó]n|Transaccl[oó]n|Transaccl[oó]…|Transac[cç]?[ií]?[oó]?n?)\s*[:;]?\s*(\d+)|Tu\s*Banco\s*Banco\s*Aq[uíi][\s\S]*?(?:\n\s*)?(\d{6,})/i;
 const secuencialRegex = /Secuencial Tbba\s*[:;]?\s*(\d+)/i;
 const montoRegex = /Valor\s*[:;]?\s*\$?\s*([\d,\.]+)/i;
 const fechaRegex = /Fecha\s*[:;]?\s*(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}:\d{2})?/i;
@@ -312,7 +313,6 @@ let matchSecuencial = text.match(secuencialRegex);
 
 // 🔹 Corregir el error "Cannot read properties of undefined (reading 'trim')"
 if (matchNumero) {
-    // Si se encuentra "Transacción", usa el número correspondiente
     numero = matchNumero[1] ? matchNumero[1].trim() : matchNumero[2] ? matchNumero[2].trim() : "-";
 } else if (matchSecuencial) {
     numero = matchSecuencial[1].trim();
@@ -333,6 +333,7 @@ if (matchFecha) {
 }
 
 console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, banco });
+
     }
 
     
