@@ -290,7 +290,11 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
     
 
     //DEPOSITO BANCO DEL PACIFICO
-    else if (/Banco Del Pac[ií]fic/i.test(text) && /Comprobante De Transacci[oó]n/i.test(text) && /Secuencial Tbba/i.test(text)) {
+    else if (
+        /Banco Del Pac[ií]fic/i.test(text) && 
+        /Comprobante De Transacci[oó]n/i.test(text) && 
+        (/Secuencial Tbba/i.test(text) || /\bTbba\b/i.test(text))
+    ) {
         console.log("✅ Se detectó un comprobante de DEPÓSITO en Banco del Pacífico.");
         banco = "DEPÓSITO - BANCO DEL PACÍFICO";
     
@@ -309,7 +313,7 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
         const montoRegex = /valor[:\s]*([\d,\.]+)/i;
         const fechaRegex = /fecha[:\s]*(\d{2}\/\d{2}\/\d{4})/i;
     
-        // 📌 Extraer número de transacción
+        // 📌 Extraer número de transacción o secuencial
         let matchNumero = textoLimpio.match(numeroRegex);
         let matchSecuencial = textoLimpio.match(secuencialRegex);
         numero = matchNumero ? matchNumero[1].trim() : (matchSecuencial ? matchSecuencial[1].trim() : "-");
