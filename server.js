@@ -68,14 +68,6 @@ function extraerDatosOCR(text) {
          };
      }
 
-// **2️⃣ Si el banco fue detectado pero falta el número de documento**
-if (!numero || numero === "-") {
-    console.log("📌 Número de documento no detectado.");
-    return {
-        message: "⌛ Estamos verificando su pago. Por favor, espere unos momentos.",
-        resumen: "📌 Si el comprobante es válido, será procesado automáticamente."
-    };
-}
 
 
     // Detectar el banco
