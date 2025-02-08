@@ -300,7 +300,7 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
     banco = "DEPÓSITO - BANCO DEL PACÍFICO";
 
     // 🛠 Expresiones regulares mejoradas
-    const numeroRegex = /(?:Transacci[oó]n|Transaccl[oó]n|Transaccl[oó]…|Transac[cç]?[ií]?[oó]?n?)\s*[:;]?\s*(\d+)/i;
+    const numeroRegex = /(?:Transacci[oó]n|Transaccl[oó]n|Transaccl[oó]…|Transac[cç]?[ií]?[oó]?n?)\s*[:;]?\s*(\d+)|Tu\s*Banco\s*Banco\s*Aq[uíi][\s\S]*?(\d{6,})/i;
     const secuencialRegex = /Secuencial Tbba\s*[:;]?\s*(\d+)/i;
     const montoRegex = /Valor\s*[:;]?\s*\$?\s*([\d,\.]+)/i;
     const fechaRegex = /Fecha\s*[:;]?\s*(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}:\d{2})?/i;
