@@ -416,7 +416,7 @@ return {
     resumen: "👉 *Soporte:* 0980757208 👈"
 };
 
-
+}
 
 
 // Obtener todos los comprobantes
