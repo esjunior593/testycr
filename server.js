@@ -300,20 +300,6 @@ else if (/Transferencia Enviada|COMPROBANTE DE TRANSFERENCIA/i.test(text) && /No
     banco = "DEPÓSITO - BANCO DEL PACÍFICO";
 
 
-        // 🛠 Función para limpiar el texto OCR antes de procesarlo
-function limpiarTextoOCR(text) {
-    return text
-        .replace(/\s{2,}/g, " ") // Eliminar espacios dobles o más
-        .replace(/meaccior/gi, "Transacción") // Corregir errores de OCR en "Transacción"
-        .replace(/v dor/gi, "Valor") // Corregir "Valor"
-        .replace(/Secuenc al Tbba/gi, "Secuencial Tbba") // Corregir errores en "Secuencial Tbba"
-        .replace(/p\s*(\d{2}\/\d{2}\/\d{4})\s+(\d{2})[-](\d{2})[-](\d{2})/gi, "Fecha: $1 $2:$3:$4") // Corregir errores de fecha
-        .replace(/Tu\s*Manes\s*Bancc\s*A[yíi]/gi, "Tu Banco Banco Aquí") // Corregir errores en "Tu Banco Aquí"
-        .trim();
-}
-
-// Aplicamos la limpieza al texto OCR antes de buscar datos
-text = limpiarTextoOCR(text);
 
 
 
