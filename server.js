@@ -446,21 +446,28 @@ app.post('/comprobantes', (req, res) => {
         });
     }
 
-     
     const datosExtraidos = extraerDatosOCR(text);
 
-    // Si la imagen no es un comprobante, retorna el mensaje y evita la inserción
-    if (datosExtraidos.mensaje) {
-        return res.status(200).json({ 
-            message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.", 
-            resumen: "👉 *Soporte:* 0980757208 👈"
-        });
+    // 🔹 Si la imagen no es un comprobante, retorna el mensaje y evita la inserción
+    if (datosExtraidos.message) {
+        return res.status(200).json(datosExtraidos); 
     }
 
     let { numero, nombres, monto, fecha, banco } = datosExtraidos;
 
-    // **CORRECCIÓN**: Solo verificar `numero`, no `monto`
-    if (!numero || numero === "-") {
+    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp, banco });
+
+    // 🔹 Si detecta banco pero no número de documento, muestra mensaje de espera
+    if (banco && (!numero || numero === "-")) {
+        console.log("📌 Número de documento no detectado, en espera de verificación.");
+        return res.status(200).json({
+            message: "⌛ Estamos verificando su pago. Por favor, espere unos momentos.",
+            resumen: "📌 Si el comprobante es válido, será procesado automáticamente."
+        });
+    }
+
+    // 🔹 Si NO detecta ni banco ni número, envía el mensaje de soporte
+    if ((!banco || banco === "DESCONOCIDO") && (!numero || numero === "-")) {
         console.log("🚫 No se detectó un comprobante de pago.");
         return res.status(200).json({
             message: "Si tiene algún problema con su servicio escriba al número de Soporte por favor.",
@@ -468,9 +475,7 @@ app.post('/comprobantes', (req, res) => {
         });
     }
 
-    console.log("📥 Datos extraídos:", { numero, nombres, monto, fecha, whatsapp, banco });
-
-    // Verificar si el comprobante ya existe en MySQL
+    // 🔹 Verificar si el comprobante ya existe en MySQL
     db.query('SELECT * FROM Comprobante WHERE numero = ?', [numero], (err, results) => {
         if (err) {
             console.error("❌ Error en SELECT:", err);
@@ -494,7 +499,7 @@ app.post('/comprobantes', (req, res) => {
             });
         }
         
-        // Insertar en MySQL con los datos extraídos
+        // 🔹 Insertar en MySQL si tiene número de comprobante
         db.query('INSERT INTO Comprobante (numero, nombres, descripcion, fecha, whatsapp, monto) VALUES (?, ?, ?, ?, ?, ?)',
             [numero, nombres || "Desconocido", "Pago recibido", fecha, whatsapp, monto], (err) => {
                 if (err) {
@@ -512,6 +517,7 @@ app.post('/comprobantes', (req, res) => {
             });
     });
 });
+
 
 
 
